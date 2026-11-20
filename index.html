@@ -19,9 +19,11 @@ canvas{position:fixed;left:0;top:0;display:block}
 #nit .bar i{background:var(--hazard)}
 #heat{font-size:22px;letter-spacing:3px}
 #heat .on{color:#ff4b3e}#heat .off{color:#5a514a}
-#right{right:calc(max(10px,env(safe-area-inset-right)) + 62px);top:max(10px,env(safe-area-inset-top));display:flex;gap:8px;pointer-events:auto}
+#right{right:calc(max(10px,env(safe-area-inset-right)) + 62px);top:max(10px,env(safe-area-inset-top));display:flex;gap:8px;pointer-events:auto;z-index:9999}
 #muteWrap{right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));z-index:20;pointer-events:auto}
 body.shopOpen #shopBtn{visibility:hidden}
+#shopBtn{position:relative;z-index:9999;pointer-events:auto;cursor:pointer;touch-action:manipulation}
+#shopBtn::before{content:'';position:absolute;top:-6px;bottom:-6px;left:-6px;right:-4px;background:transparent}
 body.shopOpen .panel{margin-top:58px;max-height:calc(94vh - 58px)}
 body.touch .kb{display:none}
 .btn{font:inherit;font-size:18px;background:var(--hazard);color:var(--asphalt);border:0;padding:8px 14px;cursor:pointer;border-radius:3px;box-shadow:0 4px 0 #8a6a00}
@@ -149,6 +151,7 @@ const fmt=n=>Math.round(n).toLocaleString('en-US');
 
 /* ================= POKI SDK (safe wrappers, no-ops when SDK is absent) ================= */
 let adActive=false,focusLost=false;
+const REWARD_ADS_LIVE=false; // false = reward buttons give the bonus instantly for free
 const poki={
   init(){
     const fin=()=>{try{PokiSDK.gameLoadingFinished();}catch(e){}};
@@ -159,14 +162,20 @@ const poki={
   commercial(cb){
     if(adActive)return;
     adActive=true;setPlaying(false);refreshHold();
-    const done=()=>{adActive=false;refreshHold();cb();};
+    let fin=false;
+    const done=()=>{if(fin)return;fin=true;adActive=false;refreshHold();cb();};
+    setTimeout(done,90000); // safety: never stay stuck if an ad never returns
     try{if(window.PokiSDK){PokiSDK.commercialBreak().then(done).catch(done);return;}}catch(e){}
     done();
   },
   rewarded(cb){
     if(adActive)return;
+    // Set REWARD_ADS_LIVE=true after Poki approval to switch on real rewarded ads.
+    if(!REWARD_ADS_LIVE){try{cb();}catch(e){}return;}
     adActive=true;setPlaying(false);refreshHold();
-    const done=ok=>{adActive=false;refreshHold();if(ok)cb();};
+    let fin=false;
+    const done=ok=>{if(fin)return;fin=true;adActive=false;refreshHold();if(ok){try{cb();}catch(e){}}};
+    setTimeout(()=>done(false),90000); // safety: never stay stuck if an ad never returns
     try{if(window.PokiSDK){PokiSDK.rewardedBreak().then(done).catch(()=>done(false));return;}}catch(e){}
     done(true);
   }
@@ -1384,7 +1393,12 @@ function renderShop(){
 }
 function openShop(){if(shopOpen)return;shopOpen=true;for(const k in keys)keys[k]=false;joy.active=false;hideStick();setMagnet(false);setPlaying(false);refreshHold();document.body.classList.add('shopOpen');renderShop();$('shop').classList.add('open');}
 function closeShop(){if(!shopOpen)return;shopOpen=false;$('shop').classList.remove('open');document.body.classList.remove('shopOpen');refreshHold();store();setPlaying(true);}
-$('shopBtn').addEventListener('click',()=>{initAudio();openShop();});
+(()=>{
+  const sb=$('shopBtn');let lastTouch=0;
+  const fire=()=>{initAudio();openShop();};
+  sb.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();lastTouch=Date.now();fire();},{passive:false});
+  sb.addEventListener('click',e=>{e.stopPropagation();if(Date.now()-lastTouch<700)return;fire();});
+})();
 $('resume').addEventListener('click',closeShop);
 $('shop').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b||b.disabled)return;const a=b.dataset.act;initAudio();
