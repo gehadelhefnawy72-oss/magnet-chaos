@@ -60,6 +60,9 @@ canvas{position:fixed;left:0;top:0;right:0;bottom:0;background:#14110f}
 .ptitle{display:flex;justify-content:space-between;align-items:center;font-size:28px;margin-bottom:10px;gap:10px}
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:700px){.cols{grid-template-columns:1fr}.ptitle{font-size:22px}}
+.tabs{display:none;gap:8px;margin-bottom:8px}.tab{flex:1;font:inherit;font-size:18px;padding:10px;background:#3a342f;color:var(--steel);border:0;border-radius:3px;cursor:pointer}.tab.on{background:var(--hazard);color:var(--asphalt)}
+@media(max-width:700px){.tabs{display:flex}#cols[data-tab=up]>section:nth-child(2){display:none}#cols[data-tab=zn]>section:nth-child(1){display:none}}
+.ico{font-size:26px;width:34px;text-align:center;flex:none}.row>div:first-child{display:flex;gap:10px;align-items:center}.row>div:first-child>div{min-width:0}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #3a342f}
 .row b{font-size:19px;font-weight:normal}
 .row small{display:block;color:var(--steel);font-family:'Segoe UI',Tahoma,sans-serif;font-size:13px}
@@ -189,15 +192,16 @@ body.ar .sctl{font-size:clamp(14px,2.6vh,20px)}
     <div class="ssub" data-i="tagline">Scrapyard Tycoon</div>
     <button class="playbtn" id="playBtn" data-i="play">PLAY</button>
     <div class="sctl" id="startCtl"></div>
-    <div class="ver">build 21-11-B</div>
+    
     <button class="btn" id="startLang">العربية</button>
   </div>
 </div>
-<div id="rotate">Rotate your device to landscape<br>أدر الجهاز بشكل أفقي</div>
+<div id="rotate"><svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-label="Rotate"><rect x="7" y="3" width="10" height="18" rx="2" transform="rotate(-90 12 12)"><animateTransform attributeName="transform" type="rotate" values="0 12 12;-90 12 12;-90 12 12;0 12 12" keyTimes="0;.4;.8;1" dur="2.4s" repeatCount="indefinite"/></rect><path d="M4 7a9 9 0 0 1 4-3M20 17a9 9 0 0 1-4 3"/></svg></div>
 <div id="shop">
   <div class="panel">
     <div class="ptitle"><span id="shopTitle"></span><button class="btn" id="resume"></button></div>
-    <div class="cols">
+    <div class="tabs"><button class="tab on" data-tab="up" id="tabUp"></button><button class="tab" data-tab="zn" id="tabZn"></button></div>
+    <div class="cols" id="cols" data-tab="up">
       <section id="upList"></section>
       <section>
         <div class="sec" id="zoneHead"></div>
@@ -226,6 +230,15 @@ const poki={
   },
   start(){try{window.PokiSDK&&PokiSDK.gameplayStart();}catch(e){}},
   stop(){try{window.PokiSDK&&PokiSDK.gameplayStop();}catch(e){}},
+  rewarded(cb){
+    if(adActive)return;
+    adActive=true;setPlaying(false);refreshHold();
+    let fin=false;
+    const done=ok=>{if(fin)return;fin=true;adActive=false;refreshHold();if(ok)cb();};
+    setTimeout(()=>done(false),90000);
+    try{if(window.PokiSDK){PokiSDK.rewardedBreak().then(r=>done(r!==false)).catch(()=>done(false));return;}}catch(e){}
+    done(true);
+  },
   commercial(cb){
     if(adActive)return;
     adActive=true;setPlaying(false);refreshHold();
@@ -342,6 +355,8 @@ const ZONES=[
 const UPS={magnet:{max:10,from:1000,to:10000},rope:{max:8,from:1500,to:15000},engine:{max:8,from:2000,to:20000},crusher:{max:3,from:2500,to:40000},
   csp:{max:5,from:1000,to:12000,unlock:10},coin:{max:5,from:1200,to:25000,unlock:20},sup:{max:5,from:1500,to:30000,unlock:30},laser:{max:3,from:2000,to:40000,unlock:40},frz:{max:5,from:2000,to:35000,unlock:50},
   mag2:{max:5,from:3000,to:40000,unlock:15},crush2:{max:5,from:2500,to:38000,unlock:25},cash2:{max:5,from:3500,to:40000,unlock:35}};
+const UPI={magnet:'🧲',rope:'⛓️',engine:'🚚',crusher:'🏭',csp:'⚙️',coin:'🪙',sup:'🌀',laser:'🔴',frz:'❄️',mag2:'💠',crush2:'⚡',cash2:'💰'};
+const rewardAmt=()=>Math.round(1000*(1+0.4*save.zone)*(1+save.prestige*0.5)/100)*100;
 const zoneMul=()=>1+0.4*save.zone;
 const upCost=k=>{const u=UPS[k],l=save.up[k];if(l>=u.max)return null;if(k==='magnet'&&l===0&&save.zone===0)return 30;const g=Math.pow(u.to/u.from,1/(u.max-1));return Math.round(u.from*Math.pow(g,l)*zoneMul()/10)*10;};
 const levelOf=xp=>Math.min(100,1+Math.floor(Math.sqrt(xp/40)));
@@ -841,7 +856,7 @@ function update(dt){
         const base=o.t.v*crushMult();
         const g=addCash(base,o.x,o.y,o.t.gold||base>=1500);
         bills(o.x,o.y,Math.min(18,4+Math.floor(Math.log10(g+10)*3)));debris(o.x,o.y,5,'#888');
-        sfx('cha');shake=Math.max(shake,o.t.gold?9:4);if(o.big){gearBurst(14);shake=Math.max(shake,8);}
+        sfx('cha');spark(o.x,o.y,o.t.gold?22:12,o.t.gold?'#ffd23f':'#ffb36b',o.t.gold?420:300);shake=Math.max(shake,o.t.gold?9:4);if(o.big){gearBurst(14);shake=Math.max(shake,8);}
         if(o.t.cop){addCash(1000,o.x,o.y-30,true);showCombo(S().cop+'! '+bidi('+$1,000'),3,'cop');sfx('combo',3);}
         if(o.t.gold){sfx('boom',.5);cashTruckRef=null;}
         else if(o.t.special){sfx('boom',.4);shake=Math.max(shake,8);}
@@ -1570,10 +1585,10 @@ function renderShop(){
   for(const k of Object.keys(UPS)){
     const lv=save.up[k],u=UPS[k],cost=upCost(k),lk=u.unlock&&totLvl()<u.unlock;
     let pips='';for(let i=0;i<u.max;i++)pips+='<i class="pip'+(i<lv?' on':'')+'"></i>';
-    h+='<div class="row"><div><b>'+s[k]+(k==='crusher'?' x'+crushMult():'')+'</b><small>'+s[k+'D']+'</small><div class="pips">'+pips+'</div></div>'+
+    h+='<div class="row"><div><span class="ico">'+(UPI[k]||'')+'</span><div><b>'+s[k]+(k==='crusher'?' x'+crushMult():'')+'</b><small>'+s[k+'D']+'</small><div class="pips">'+pips+'</div></div></div>'+
        '<button class="buy" data-act="up" data-k="'+k+'" '+(lk||cost==null||save.cash<cost?'disabled':'')+'>'+(lk?s.unlockAt+' '+u.unlock:cost==null?s.max:'$'+fmt(cost))+'</button></div>';
   }
-  $('upList').innerHTML=h;
+  $('upList').innerHTML=h;$('tabUp').textContent=s.upgrades;$('tabZn').textContent=s.zones;
   let zh='';
   let firstLocked=-1,hid=0;
   ZONES.forEach((z,i)=>{
@@ -1586,7 +1601,7 @@ function renderShop(){
   });
   if(hid)zh+='<div class="row"><small>+'+hid+' '+s.moreCities+'</small></div>';
   $('zoneList').innerHTML=zh;
-  $('extras').innerHTML='<div class="set"><button class="buy" data-act="lang">'+s.lang+'</button><button class="buy" data-act="snd">'+s.sound+': '+(save.mute?s.off:s.on)+'</button></div>';
+  $('extras').innerHTML='<div class="set"><button class="buy" data-act="lang">'+s.lang+'</button><button class="buy" data-act="snd">'+s.sound+': '+(save.mute?s.off:s.on)+'</button><button class="buy alt" data-act="reward">&#9654; '+(save.lang==='ar'?'شاهد إعلان: +$':'Watch ad: +$')+fmt(rewardAmt())+'</button></div>';
 }
 function renderBoard(){
   const s=S(),ar=save.lang==='ar';
@@ -1613,6 +1628,7 @@ function closeShop(){if(!shopOpen)return;shopOpen=false;$('shop').classList.remo
 })();
 $('resume').addEventListener('click',closeShop);
 $('shop').addEventListener('click',e=>{
+  const tb=e.target.closest('.tab');if(tb){$('cols').dataset.tab=tb.dataset.tab;$('tabUp').classList.toggle('on',tb.dataset.tab==='up');$('tabZn').classList.toggle('on',tb.dataset.tab==='zn');return;}
   const b=e.target.closest('button');if(!b||b.disabled)return;const a=b.dataset.act;initAudio();
   if(a==='up'){const k=b.dataset.k,c=upCost(k);if(c!=null&&save.cash>=c&&!(UPS[k].unlock&&totLvl()<UPS[k].unlock)){save.cash-=c;save.up[k]++;sfx(k==='magnet'&&save.up.magnet===1?'up':'cha');store();renderShop();}}
   else if(a==='go'){const gi=+b.dataset.i;poki.commercial(()=>{save.zone=gi;resetZone();store();closeShop();});}
@@ -1624,6 +1640,7 @@ $('shop').addEventListener('click',e=>{
     }
   }
   else if(a==='lang'){toggleLang();}
+  else if(a==='reward'){poki.rewarded(()=>{save.cash+=rewardAmt();sfx('up');store();renderShop();});}
   else if(a==='snd'){save.mute=!save.mute;syncMute();renderShop();}
 });
 
