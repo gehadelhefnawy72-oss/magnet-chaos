@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no" class="notranslate">
 <head>
 <meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta http-equiv="Content-Language" content="en">
 <meta name="theme-color" content="#14110f">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Magnet Chaos - Scrapyard Tycoon</title>
@@ -155,7 +157,7 @@ body.ar .sctl{font-size:clamp(14px,2.6vh,20px)}
 @media(orientation:landscape) and (min-height:561px){.panel{max-height:92vh;max-height:92dvh}}
 </style>
 </head>
-<body>
+<body translate="no" class="notranslate">
 <canvas id="c"></canvas>
 
 <div id="hud">
@@ -216,18 +218,20 @@ body.ar .sctl{font-size:clamp(14px,2.6vh,20px)}
 (()=>{
 'use strict';
 const $=id=>document.getElementById(id);
+document.querySelectorAll('body > *:not(script)').forEach(e=>{e.setAttribute('translate','no');e.classList.add('notranslate');});
 const clamp=(v,a,b)=>v<a?a:v>b?b:v, rnd=(a,b)=>a+Math.random()*(b-a), TAU=Math.PI*2;
 const mod=(a,n)=>((a%n)+n)%n;
 const angDiff=(a,b)=>{let d=a-b;while(d>Math.PI)d-=TAU;while(d<-Math.PI)d+=TAU;return d;};
 const fmt=n=>Math.round(n).toLocaleString('en-US');
 
 /* ================= POKI SDK (safe wrappers, no-ops when SDK is absent) ================= */
-let adActive=false,focusLost=false;
+let adActive=false,focusLost=false,sdkOk=false,uiOk=false,loadedSent=false;
 const poki={
   init(){
-    const fin=()=>{try{PokiSDK.gameLoadingFinished();}catch(e){}};
-    try{if(window.PokiSDK){PokiSDK.init().then(fin).catch(fin);}}catch(e){}
+    const go=()=>{sdkOk=true;poki.ready();};
+    try{if(window.PokiSDK){PokiSDK.init().then(go).catch(go);}}catch(e){}
   },
+  ready(){if(loadedSent||!sdkOk||!uiOk)return;loadedSent=true;try{PokiSDK.gameLoadingFinished();}catch(e){}},
   start(){try{window.PokiSDK&&PokiSDK.gameplayStart();}catch(e){}},
   stop(){try{window.PokiSDK&&PokiSDK.gameplayStop();}catch(e){}},
   rewarded(cb){
@@ -562,6 +566,7 @@ function addCash(amount,x,y,big){
 }
 
 /* ================= INPUT ================= */
+function hideHint(){if(hintT>0||$('hint').style.opacity!=='0'){hintT=0;$('hint').style.opacity=0;}}
 function setPlaying(p){if(p===playing)return;playing=p;p?poki.start():poki.stop();}
 function setMagnet(v){
   if(v===magnetOn)return;magnetOn=v;
@@ -580,7 +585,7 @@ addEventListener('keydown',e=>{
   if(e.code==='KeyB'||e.code==='Escape'){e.preventDefault();shopOpen?closeShop():openShop();return;}
   if(e.code==='KeyM'){save.mute=!save.mute;syncMute();return;}
   if(shopOpen)return;
-  if(GAME_KEYS.includes(e.code)){e.preventDefault();document.body.classList.add('kbd');}
+  if(GAME_KEYS.includes(e.code)){e.preventDefault();document.body.classList.add('kbd');if(started)hideHint();}
   if(e.code==='KeyE'&&!e.repeat)setMagnet(true);
   if(e.code==='KeyF'&&!e.repeat)useFreeze();
   keys[e.code]=true;
@@ -593,8 +598,10 @@ addEventListener('focus',()=>{focusLost=false;refreshHold();if(started&&!shopOpe
 addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('visibilitychange',()=>{refreshHold();if(document.hidden){setPlaying(false);store();}else if(started&&!shopOpen)setPlaying(true);});
 addEventListener('pagehide',()=>{refreshHold();setPlaying(false);store();});
+addEventListener('pointermove',e=>{if(e.pointerType==='mouse')document.body.classList.add('kbd');},{passive:true});
 addEventListener('pointerdown',e=>{
   if(e.pointerType==='touch'){document.body.classList.add('touch');document.body.classList.remove('kbd');}
+  if(started&&!shopOpen&&!(e.target.closest&&e.target.closest('#start,#shop,#board')))hideHint();
   focusLost=false;initAudio();refreshHold();if(started&&!shopOpen)setPlaying(true);
   if(e.pointerType==='mouse'&&e.button===0&&started&&!shopOpen&&!(e.target.closest&&e.target.closest('button,#shop,#start'))){mouseDown=true;document.body.classList.add('kbd');setMagnet(true);}
 },{passive:true});
@@ -1688,6 +1695,7 @@ function frame(now){
   render();updateHud();updateAudio(paused);
 }
 requestAnimationFrame(frame);
+requestAnimationFrame(()=>requestAnimationFrame(()=>{uiOk=true;poki.ready();}));
 })();
 </script>
 </body>
