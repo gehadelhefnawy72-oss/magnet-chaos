@@ -74,6 +74,14 @@ canvas{position:fixed;left:0;top:0;right:0;bottom:0;background:#14110f}
 .set{display:flex;gap:8px;margin-top:10px}
 .set .buy{flex:1;background:#3a342f;color:var(--ink)}
 body.kbd #touch,body.kbd #stickBase,body.kbd #magZone{display:none!important}
+#langWrap{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+#boardBtn{font-size:18px;min-width:44px}
+#board{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:6px}
+#board.open{display:flex}
+.rv{color:var(--hazard);font-size:20px;text-align:end}
+.bnote{display:block;margin-top:10px;color:var(--steel);line-height:1.5}
+#frzBtn{position:fixed;left:50%;transform:translateX(-50%);bottom:max(110px,env(safe-area-inset-bottom));z-index:21;display:none;pointer-events:auto;font-size:18px}
+#frzFx{position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at center,rgba(120,200,255,.05),rgba(120,200,255,.28));opacity:0;transition:opacity .25s}
 #mission{background:rgba(29,26,24,.92);border-left:5px solid var(--volt);padding:3px 12px;font-size:clamp(12px,1.9vw,18px);color:var(--ink);text-align:center;line-height:1.3}
 #mission .g{color:var(--hazard);margin-inline-end:6px;letter-spacing:1px}
 #mission.flash{animation:mflash .7s}
@@ -155,7 +163,7 @@ body.ar .sctl{font-size:clamp(14px,2.6vh,20px)}
   </div>
   <div class="hud" id="muteWrap"><button class="btn" id="muteBtn" aria-label="Sound">&#128266;</button></div>
   <div class="hud" id="fsWrap" style="right:calc(max(10px,env(safe-area-inset-right)) + 62px);top:calc(max(10px,env(safe-area-inset-top)) + 52px);z-index:20;pointer-events:auto"><button class="btn" id="fsBtn" aria-label="Fullscreen">&#9974;</button></div>
-  <div class="hud" id="langWrap"><button class="btn" id="langBtn" aria-label="Language">عربي</button></div>
+  <div class="hud" id="langWrap"><button class="btn" id="langBtn" aria-label="Language">عربي</button><button class="btn" id="boardBtn" aria-label="Records">🏆</button></div>
   <div class="hud" id="combo"></div>
   <div class="hud" id="hint"></div>
 </div>
@@ -167,6 +175,9 @@ body.ar .sctl{font-size:clamp(14px,2.6vh,20px)}
   <button class="tbtn" id="magBtn" data-i="magnetBtn">MAGNET</button>
 </div>
 
+<div id="frzFx"></div>
+<button class="btn" id="frzBtn"></button>
+<div id="board"><div class="panel"><div class="ptitle"><span id="boardTitle"></span><button class="btn" id="boardClose"></button></div><div id="boardBody"></div></div></div>
 <div id="start">
   <div class="sbox">
     <div class="stitle"><span>MAGNET</span><span>CHAOS</span></div>
@@ -223,8 +234,8 @@ poki.init();
 
 /* ================= SAVE ================= */
 const KEY='magnetChaosSave_v1';
-let save={cash:0,xp:0,up:{magnet:0,rope:0,engine:0,crusher:0},zones:[true,false,false,false,false],zone:0,lang:'en',mute:false};
-function load(){try{const s=localStorage.getItem(KEY);if(s){const o=JSON.parse(s);save=Object.assign(save,o);save.up=Object.assign({magnet:0,rope:0,engine:0,crusher:0},o.up||{});}}catch(e){}}
+let save={cash:0,xp:0,up:{magnet:0,rope:0,engine:0,crusher:0,csp:0,coin:0,sup:0,laser:0,frz:0},zones:[true,false,false,false,false],zone:0,lang:'en',mute:false,prestige:0,totalEarned:0,bestCombo:0,firsts:{}};
+function load(){try{const s=localStorage.getItem(KEY);if(s){const o=JSON.parse(s);save=Object.assign(save,o);save.up=Object.assign({magnet:0,rope:0,engine:0,crusher:0,csp:0,coin:0,sup:0,laser:0,frz:0},o.up||{});}}catch(e){}}
 function store(){try{localStorage.setItem(KEY,JSON.stringify(save));}catch(e){}}
 load();
 setInterval(store,10000);
@@ -243,7 +254,7 @@ en:{upgrades:'UPGRADES',nitro:'NITRO',magnetBtn:'MAGNET',shop:'UPGRADE YARD',res
  hintK:'WASD / Arrows: drive · SPACE: nitro · E / Click: magnet · B: upgrades',hintT:'Drag left to drive. Hold the right side to grab, release to fling.',
  timerSurge:'SURGE',timerBoost:'2x CASH',timerTrial:'GIGA MAGNET',
  sp_armored:'ARMORED CASH TRUCK! Crush it for $2,500 - hit it hard to crack the armor',sp_goldsafe:'GOLDEN VAULT! Crush it for $1,500',sp_drone:'DRONE OVERHEAD! Grab & smash it: +$3,500',
- ar_armored:'$2,500',ar_goldsafe:'$1,500',ar_drone:'$3,500',airSmash:'AIR SMASH!',armorHit:'ARMOR',armorOff:'ARMOR CRACKED!',play:'PLAY',tagline:'Scrapyard Tycoon',goal:'GOAL',m1:'Grab junk with the magnet and drop it in the CRUSHER',m2:'Buy MAGNET POWER in UPGRADES',m3:'Smash two cars in a row for a COMBO',m4:'Reach LEVEL 3',m5:'Unlock',m6:'Max out every upgrade'},
+ ar_armored:'$2,500',ar_goldsafe:'$1,500',ar_drone:'$3,500',airSmash:'AIR SMASH!',armorHit:'ARMOR',armorOff:'ARMOR CRACKED!',play:'PLAY',tagline:'Scrapyard Tycoon',goal:'GOAL',m1:'Grab junk with the magnet and drop it in the CRUSHER',m2:'Buy MAGNET POWER in UPGRADES',m3:'Smash two cars in a row for a COMBO',m4:'Reach LEVEL 3',m5:'Unlock',m6:'Max out every upgrade',csp:'Crusher Speed',cspD:'Crushes junk faster',coin:'Coin Magnet',coinD:'+10% cash per level',sup:'Super Magnet',supD:'Pulls from much farther',laser:'Laser Crusher',laserD:'Wider, faster crushing zone',frz:'Time Freeze',frzD:'Freezes cops & drones for 2s (key F)',unlockAt:'Unlocks at level',newUp:'NEW UPGRADE UNLOCKED!',prestige:'PRESTIGE',king:'KING MAGNET',moreCities:'more cities',frzBtn:'FREEZE [F]',sp_boss:'BOSS! Crack the armor and crush it for $20,000',ar_boss:'$20,000',boardT:'Records',rkTitle:'Title',rkLevel:'Total level',rkCash:'Cash',rkTotal:'Total earned',rkCombo:'Best combo',rkCities:'Cities unlocked',rkNow:'Current city',rkFirst:'First time reaching each city',boardNote:'Online TOP 10 and friends ranking is coming soon. These are your personal records.'},
 ar:{upgrades:'التطوير',nitro:'نيترو',magnetBtn:'مغناطيس',shop:'ورشة التطوير',resume:'ارجع للشغل',
  magnet:'قوة المغناطيس',magnetD:'سحب أقوى ويرفع خردة أثقل',rope:'الحبل والتأرجح',ropeD:'سلسلة أطول وتأرجح أوسع',
  engine:'المحرك والنيترو',engineD:'سرعة وقوة سحب أكبر',crusher:'المكبس العملاق',crusherD:'الخردة تدفع مالاً أكثر',
@@ -255,7 +266,7 @@ ar:{upgrades:'التطوير',nitro:'نيترو',magnetBtn:'مغناطيس',shop
  hintK:'WASD / الأسهم: قيادة · مسافة: نيترو · E أو كليك: مغناطيس · B: التطوير',hintT:'اسحب يساراً للقيادة. اضغط مطولاً يمين الشاشة للإمساك وارفع إصبعك للقذف.',
  timerSurge:'شحن',timerBoost:'مال x2',timerTrial:'مغناطيس عملاق',
  sp_armored:'شاحنة نقود مدرعة! اسحقها لتربح 2500$ - اضربها بقوة لكسر الدرع',sp_goldsafe:'خزنة ذهبية! اسحقها لتربح 1500$',sp_drone:'طائرة درون! أمسكها وحطمها: +3500$',
- ar_armored:'2500$',ar_goldsafe:'1500$',ar_drone:'3500$',airSmash:'تحطيم جوي!',armorHit:'درع',armorOff:'انكسر الدرع!',play:'العب',tagline:'إمبراطور الخردة',goal:'الهدف',m1:'امسك الخردة بالمغناطيس وارمِها في المكبس',m2:'اشترِ قوة المغناطيس من التطوير',m3:'حطّم سيارتين ورا بعض لتحصل على كومبو',m4:'اوصل للمستوى 3',m5:'افتح',m6:'طوّر كل شيء للحد الأقصى'}
+ ar_armored:'2500$',ar_goldsafe:'1500$',ar_drone:'3500$',airSmash:'تحطيم جوي!',armorHit:'درع',armorOff:'انكسر الدرع!',play:'العب',tagline:'إمبراطور الخردة',goal:'الهدف',m1:'امسك الخردة بالمغناطيس وارمِها في المكبس',m2:'اشترِ قوة المغناطيس من التطوير',m3:'حطّم سيارتين ورا بعض لتحصل على كومبو',m4:'اوصل للمستوى 3',m5:'افتح',m6:'طوّر كل شيء للحد الأقصى',csp:'سرعة التكسير',cspD:'يكسّر الخردة أسرع',coin:'مغناطيس العملات',coinD:'+10% فلوس لكل مستوى',sup:'المغناطيس الخارق',supD:'يسحب من بعيد جداً',laser:'مكسّر الليزر',laserD:'منطقة تكسير أوسع وأسرع',frz:'تجميد الزمن',frzD:'يجمّد الشرطة والدرون ثانيتين (زر F)',unlockAt:'يفتح عند المستوى',newUp:'تطوير جديد اتفتح!',prestige:'بريستيج',king:'ملك المغناطيس',moreCities:'مدينة أخرى',frzBtn:'تجميد [F]',sp_boss:'زعيم! اكسر الدرع واسحقه لتربح 20000$',ar_boss:'20000$',boardT:'الأرقام القياسية',rkTitle:'اللقب',rkLevel:'المستوى الكلي',rkCash:'الفلوس',rkTotal:'إجمالي الأرباح',rkCombo:'أعلى كومبو',rkCities:'المدن المفتوحة',rkNow:'المدينة الحالية',rkFirst:'أول مرة وصلت لكل مدينة',boardNote:'ترتيب أفضل 10 لاعبين والأصحاب أونلاين قريباً. دي أرقامك الشخصية.'}
 };
 const S=()=>L[save.lang]||L.en;
 const isTouch=(matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window);
@@ -290,7 +301,8 @@ const T={
  scrap:{tier:1,r:14,v:800,c:'#7f8ea0',k:'meteor'},
  armored:{tier:4,r:36,v:2500,c:'#4c5560',k:'van',armored:1,special:1,heavy:3},
  goldsafe:{tier:1,r:18,v:1500,c:'#e0b020',k:'safe',special:1,vault:1},
- drone:{tier:1,r:20,v:0,c:'#2b3138',k:'drone',special:1,drone:1}
+ drone:{tier:1,r:20,v:0,c:'#2b3138',k:'drone',special:1,drone:1},
+  boss:{tier:4,r:42,v:20000,c:'#8a1c2b',k:'van',armored:1,special:1,heavy:3,boss:1}
 };
 const ZONES=[
  {n:{en:'Rusty Scrapyard',ar:'ساحة الخردة الصدئة'},cost:0,lvl:1,bg:'#6a6e73',grid:'#7a7e83',pool:[['barrel',4],['bike',3],['compact',4],['sedan',3],['safe',1.4],['vending',.8],['van',.8]]},
@@ -299,10 +311,32 @@ const ZONES=[
  {n:{en:'Military Base',ar:'القاعدة العسكرية'},cost:250000,lvl:30,bg:'#3f4a33',grid:'#48553b',pool:[['jeep',4],['missile',3],['tank',1.6],['van',1],['heli',.8]]},
  {n:{en:'Cyber Neon City',ar:'مدينة النيون'},cost:1000000,lvl:50,bg:'#150d2b',grid:'#2a1b52',pool:[['neoncar',4],['hover',3],['core',3],['robot',1.2],['vending',1]]}
 ];
-const UPS={magnet:{max:10,base:100,g:1.6},rope:{max:8,base:80,g:1.55},engine:{max:8,base:120,g:1.6},crusher:{max:3,costs:[400,2500,15000]}};
+(()=>{
+  const CD=[["Cairo", "القاهرة"], ["Giza", "الجيزة"], ["Alexandria", "اسكندرية"], ["Dubai", "دبي"], ["Riyadh", "الرياض"], ["Doha", "الدوحة"], ["Beirut", "بيروت"], ["Amman", "عمان"], ["Jerusalem", "القدس"], ["Istanbul", "اسطنبول"], ["Paris", "باريس"], ["London", "لندن"], ["Berlin", "برلين"], ["Madrid", "مدريد"], ["Rome", "روما"], ["New York", "نيويورك"], ["Los Angeles", "لوس انجلوس"], ["Las Vegas", "لاس فيجاس"], ["Toronto", "تورنتو"], ["Mexico City", "مكسيكو سيتي"], ["Sao Paulo", "ساو باولو"], ["Tokyo", "طوكيو"], ["Seoul", "سيول"], ["Beijing", "بكين"], ["Shanghai", "شنغهاي"], ["Mumbai", "مومباي"], ["Bangkok", "بانكوك"], ["Jakarta", "جاكرتا"], ["Sydney", "سيدني"], ["Cape Town", "كيب تاون"], ["Lagos", "لاجوس"], ["Moscow", "موسكو"], ["Kyiv", "كييف"], ["Stockholm", "ستوكهولم"], ["Amsterdam", "امستردام"], ["Moon Base", "القمر"], ["Mars Base", "المريخ"], ["Space Station", "محطة الفضاء"], ["Venus", "كوكب الزهرة"], ["Jupiter", "كوكب المشتري"], ["Saturn", "زحل"], ["Galaxy", "المجرة"], ["Black Hole", "الثقب الاسود"], ["Diamond City", "مدينة الالماس"], ["GOLD CITY", "مدينة الذهب"]];
+  const TH=[['taxi','sedan','compact','van','bus','vending','bike'],['jeep','van','fuel','cart','bike','sedan'],['jet','heli','cart','fuel','bus','van'],['tank','missile','jeep','heli','van'],['neoncar','hover','core','robot','vending']];
+  const hex=(h,s,l)=>{s/=100;l/=100;const a=s*Math.min(l,1-l),f=n=>{const k=(n+h/30)%12;return Math.round(255*(l-a*Math.max(-1,Math.min(k-3,9-k,1))));};return '#'+[f(0),f(8),f(4)].map(v=>v.toString(16).padStart(2,'0')).join('');};
+  CD.forEach((c,j)=>{
+    const i=5+j;let seed=i*7919+13;const rr=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};
+    const space=i>=40;const th=i>=40?4:(i<=13?1:[0,2,3,0][i%4]);
+    let bg,grid;
+    if(i===49){bg='#3d3010';grid='#8a7126';}else if(i===48){bg='#12303a';grid='#3a8aa3';}
+    else if(space){const h=(i*53)%360;bg=hex(h,45,11);grid=hex(h,55,26);}
+    else{const h=(i*47)%360;bg=hex(h,22,22);grid=hex(h,26,31);}
+    const pool=TH[th].map(n=>[n,+(1+rr()*3).toFixed(2)]);
+    if(i>=48)pool.push(['safe',3]);
+    ZONES.push({n:{en:c[0],ar:c[1]},cost:(i-2)*1000000,lvl:Math.min(95,50+(i-4)),bg,grid,pool});
+  });
+  while(save.zones.length<ZONES.length)save.zones.push(false);
+  if(!save.firsts)save.firsts={};if(!save.firsts[0])save.firsts[0]=Date.now();
+  save.prestige=save.prestige||0;save.totalEarned=save.totalEarned||0;save.bestCombo=save.bestCombo||0;
+})();
+const UPS={magnet:{max:10,base:100,g:1.6},rope:{max:8,base:80,g:1.55},engine:{max:8,base:120,g:1.6},crusher:{max:3,costs:[400,2500,15000]},
+  csp:{max:5,base:300,g:1.7,unlock:10},coin:{max:5,base:500,g:1.8,unlock:20},sup:{max:5,base:800,g:1.8,unlock:30},laser:{max:3,costs:[5000,30000,200000],unlock:40},frz:{max:5,base:2000,g:1.9,unlock:50}};
 const upCost=k=>{const u=UPS[k],l=save.up[k];if(l>=u.max)return null;if(k==='magnet'&&l===0)return 30;return u.costs?u.costs[l]:Math.round(u.base*Math.pow(u.g,l));};
-const levelOf=xp=>Math.min(99,1+Math.floor(Math.sqrt(xp/40)));
+const levelOf=xp=>Math.min(100,1+Math.floor(Math.sqrt(xp/40)));
 const lvl=()=>levelOf(save.xp);
+const PRES=[1,2,4,6,8,10,15,20,30,50,100];
+const totLvl=()=>save.prestige*100+lvl();
 
 /* ================= STATE ================= */
 const world={w:2600,h:1700};
@@ -318,17 +352,18 @@ let msgT=0,msgP=0,bannerT=0,comboT=0,hintT=14,tooBigT=0,lastClang=0,cashTruckRef
 const keys={};
 const stat={crushed:0,maxCombo:0};
 const uiq={cur:null,t:0,gap:0,list:[]};
-let started=false,mouseDown=false,joyOX=0,joyOY=0;
+let started=false,mouseDown=false,joyOX=0,joyOY=0,freezeT=0,freezeCD=0;
 const joy={x:0,y:0,active:false};
 let touchNitro=false;
 
 const mZ=()=>Math.min(10,save.up.magnet+(trialT>0?4:0));
 const maxTier=()=>Math.min(5,1+Math.floor(mZ()/2));
-const magRad=()=>(78+mZ()*13)*(surgeT>0?2:1);
+const magRad=()=>(78+mZ()*13)*(1+0.15*save.up.sup)*(surgeT>0?2:1);
 const ropeLen=()=>120+save.up.rope*24;
-const cashMult=()=>(surgeT>0?2:1)*(boostT>0?2:1);
+const cashMult=()=>(surgeT>0?2:1)*(boostT>0?2:1)*PRES[Math.min(10,save.prestige)]*(1+0.1*save.up.coin);
+const crushT=()=>0.6*(1-0.12*save.up.csp-0.08*save.up.laser);
 const crushMult=()=>[1,2,5,10][save.up.crusher];
-const inCrusher=o=>o.x>crusher.x&&o.x<crusher.x+crusher.w&&o.y>crusher.y&&o.y<crusher.y+crusher.h;
+const inCrusher=o=>{const m=save.up.laser*20;return o.x>crusher.x-m&&o.x<crusher.x+crusher.w+m&&o.y>crusher.y-m&&o.y<crusher.y+crusher.h+m;};
 
 /* ================= AUDIO ================= */
 let AC=null,master,humG,humO,sirG,sirO,nbuf,engO,engO2,engG,audioHold=false;
@@ -408,7 +443,7 @@ function buildDecor(){
 }
 function _decorExtra(){}
 function mk(name,x,y){
-  const t0=T[name];const o={n:name,t:t0,x,y,vx:0,vy:0,a:rnd(0,TAU),va:0,r:t0.r,held:false,wreck:false,off:false,crush:-1,fling:0,cd:0,att:false,seed:Math.random()*100,dead:false,armor:t0.armored?3:0,soft:false,ttl:t0.vault?80:t0.drone?50:-1,wx:0,wy:0,wt:0};
+  const t0=T[name];const o={n:name,t:t0,x,y,vx:0,vy:0,a:rnd(0,TAU),va:0,r:t0.r,held:false,wreck:false,off:false,crush:-1,fling:0,cd:0,att:false,seed:Math.random()*100,dead:false,armor:t0.boss?6:t0.armored?3:0,soft:false,ttl:t0.vault?80:t0.drone?50:t0.boss?90:-1,wx:0,wy:0,wt:0};
   objs.push(o);return o;
 }
 function pickType(){const p=ZONES[save.zone].pool;let tot=0;for(const e of p)tot+=e[1];let r=Math.random()*tot;for(const e of p){r-=e[1];if(r<=0)return e[0];}return p[0][0];}
@@ -421,7 +456,7 @@ function randPos(minD){
   }
   return [1500,300];
 }
-const targetCount=()=>save.zone===0?48:26+save.zone*4;
+const targetCount=()=>save.zone===0?48:Math.min(56,26+save.zone*4);
 function resetZone(){
   objs=[];parts=[];texts=[];skids=[];meteors=[];heat=0;combo=0;cashTruckRef=null;specialT=22;
   truck={x:820,y:850,vx:0,vy:0,a:0,r:TR,truck:true,held:false,fling:0,cd:0,wreck:false,crush:-1};
@@ -487,9 +522,12 @@ function uiUpdate(dt){
   }
 }
 function addCash(amount,x,y,big){
-  const g=Math.round(amount*cashMult());save.cash+=g;save.xp+=g*0.25+(save.xp<160?10:0);
+  const g=Math.round(amount*cashMult());save.cash+=g;save.totalEarned+=g;save.xp+=g*0.25+(save.xp<160?10:0);
   if(x!=null)ftext(x,y,'+$'+fmt(g),'#5cff8a',big);
-  const l=lvl();if(l>lastLvl){lastLvl=l;uiPush('lvl',S().lvup+' '+l);sfx('up');spark(truck.x,truck.y,26,'#ffc400',380);shake=Math.max(shake,5);}
+  const l=lvl();if(l>lastLvl){lastLvl=l;uiPush('lvl',S().lvup+' '+l);sfx('up');spark(truck.x,truck.y,26,'#ffc400',380);shake=Math.max(shake,5);
+    if(l%10===0){const u=Object.keys(UPS).find(k=>UPS[k].unlock===totLvl());if(u)banner(S().newUp+' '+S()[u]);}
+    if(l===50)spawnBoss();}
+  if(l>=100&&save.prestige<10)doPrestige();
   return g;
 }
 
@@ -514,6 +552,7 @@ addEventListener('keydown',e=>{
   if(shopOpen)return;
   if(GAME_KEYS.includes(e.code)){e.preventDefault();document.body.classList.add('kbd');}
   if(e.code==='KeyE'&&!e.repeat)setMagnet(true);
+  if(e.code==='KeyF'&&!e.repeat)useFreeze();
   keys[e.code]=true;
   setPlaying(true);
 });
@@ -563,6 +602,9 @@ function airSmash(o){
   sfx('boom',.7);sfx('combo',6);shake=Math.max(shake,12);
   spark(o.x,o.y,30,'#ffb347',420);spark(o.x,o.y,14,'#ffffff',300);debris(o.x,o.y,14,'#4d5a63');bills(o.x,o.y,16);
 }
+function spawnBoss(){const p=randPos(420),o=mk('boss',p[0],p[1]);banner(S().sp_boss);sfx('boom',.6);spark(o.x,o.y,26,'#ff5a5a',300);shake=Math.max(shake,8);}
+function doPrestige(){save.prestige++;save.xp=0;lastLvl=1;uiPush('lvl',S().prestige+' '+save.prestige+'!  x'+PRES[save.prestige]);if(save.prestige>=10)banner(S().king);sfx('up');shake=Math.max(shake,8);spawnBoss();store();}
+function useFreeze(){if(save.up.frz<1||freezeCD>0||freezeT>0||!started||shopOpen)return;freezeT=2;freezeCD=Math.max(8,30-4*save.up.frz);sfx('up');}
 function spawnSpecial(){
   const names=['armored','goldsafe','drone'];let i;
   do{i=Math.floor(Math.random()*3);}while(i===lastSpecial);lastSpecial=i;
@@ -594,7 +636,7 @@ function collide(a,b){
 function isActive(o){return o.held||o.fling>0||(o.truck&&Math.hypot(o.vx,o.vy)>190);}
 function smash(a,b,imp,x,y){
   if(a.cd>0||b.cd>0)return;a.cd=b.cd=0.3;
-  combo=(time-lastSmash<(save.xp<400?4:3))?combo+1:1;lastSmash=time;if(combo>stat.maxCombo)stat.maxCombo=combo;
+  combo=(time-lastSmash<(save.xp<400?4:3))?combo+1:1;lastSmash=time;if(combo>stat.maxCombo)stat.maxCombo=combo;if(combo>save.bestCombo)save.bestCombo=combo;
   let gain=Math.round(15*combo*(1+save.zone)),cop=false,copBonus=0;
   const truckIn=a.truck||b.truck;
   for(const o of [a,b]){
@@ -722,8 +764,10 @@ function update(dt){
     const cw=objs.filter(o=>o.t.cop&&(o.wreck||o.off)&&!o.held);
     if(cw.length>8)cw[0].dead=true;
   }
+  if(freezeT>0){freezeT-=dt;const f=Math.exp(-9*dt);for(const o of objs)if((o.t.cop||o.t.drone)&&!o.held&&!(o.fling>0)){o.vx*=f;o.vy*=f;}}
+  if(freezeCD>0)freezeCD-=dt;
   for(const o of objs){
-    if(!o.t.cop||o.off||o.wreck||o.held||o.crush>=0)continue;
+    if(freezeT>0||!o.t.cop||o.off||o.wreck||o.held||o.crush>=0)continue;
     const cx=truck.x-o.x,cy=truck.y-o.y,cd=Math.hypot(cx,cy)||1;
     if(heat<0.2&&cd>700){o.dead=true;continue;}
     const spd=(o.n==='swat'?125:150)+heat*14;
@@ -735,7 +779,7 @@ function update(dt){
   for(const o of objs){
     if(o.dead||o.held||o.crush>=0)continue;
     if(o.ttl>0){o.ttl-=dt;if(o.ttl<=0){o.dead=true;spark(o.x,o.y,14,'#ffd23f',240);continue;}}
-    if(!o.t.drone||o.fling>0||o.att)continue;
+    if(freezeT>0||!o.t.drone||o.fling>0||o.att)continue;
     o.wt-=dt;
     if(o.wt<=0||Math.hypot(o.wx-o.x,o.wy-o.y)<40){o.wt=rnd(2.5,5);o.wx=rnd(120,world.w-120);o.wy=rnd(120,world.h-120);}
     const ddx=o.wx-o.x,ddy=o.wy-o.y,dd=Math.hypot(ddx,ddy)||1,sp=150+Math.sin(time*2+o.seed)*25,k=Math.min(1,2*dt);
@@ -778,7 +822,7 @@ function update(dt){
       if(Math.random()<dt*30)spark(o.x,o.y,2,'#ffb347',200);
       if(o.big&&Math.random()<dt*14)gearBurst(2);
       if(Math.random()<dt*14)debris(o.x,o.y,1,'#888');
-      if(o.crush>=0.6){
+      if(o.crush>=crushT()){
         const base=o.t.v*crushMult();
         const g=addCash(base,o.x,o.y,o.t.gold||base>=1500);
         bills(o.x,o.y,Math.min(18,4+Math.floor(Math.log10(g+10)*3)));debris(o.x,o.y,5,'#888');
@@ -855,7 +899,7 @@ const shc={};
 function shade(c,f){const k=c+'|'+f;if(shc[k])return shc[k];const q=rgbOf(c).map(v=>f>=0?v*(1-f):v+(255-v)*-f);return shc[k]='rgb('+q.map(v=>v|0).join(',')+')';}
 const GS=isTouch?.6:1,texCache={};let hazardPat=null;
 function groundPattern(){
-  const k=save.zone;if(texCache[k])return texCache[k];
+  const k=save.zone;if(texCache[k])return texCache[k];for(const kk in texCache)delete texCache[kk];
   const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');
   g.fillStyle=ZONES[k].bg;g.fillRect(0,0,512,512);
   const r=seeded(311+k*17);
@@ -1170,7 +1214,7 @@ function vanBody(o,c,r){
 }
 function drawObj(o){
   const r=o.r,k=o.t.k,c=o.wreck?shade(o.t.c,.55):o.t.c,air=flying(o);
-  const s=o.crush>=0?Math.max(0.05,1-o.crush/0.6):1;
+  const s=o.crush>=0?Math.max(0.05,1-o.crush/crushT()):1;
   ctx.save();ctx.translate(o.x,o.y);
   ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(3+(o.held?6:air?22:0),5+(o.held?8:air?30:0),r*1.05*s,r*0.8*s,o.a,0,TAU);ctx.fill();
   ctx.rotate(o.a);ctx.scale(s,s);
@@ -1463,11 +1507,14 @@ function updateHud(){
   const nowT=performance.now();if(nowT-hudLast<80)return;hudLast=nowT;
   setTxt('cash','$'+fmt(save.cash));
   const l=lvl(),lo=40*(l-1)*(l-1),hi=40*l*l;
-  setTxt('lvl',(save.lang==='ar'?'مستوى ':'LV ')+l);
+  setTxt('lvl',(save.prestige>=10?S().king+' · ':save.prestige>0?'P'+save.prestige+' · ':'')+(save.lang==='ar'?'مستوى ':'LV ')+l);
   const xp=clamp((save.xp-lo)/(hi-lo),0,1)*100;if(hudCache.xp!==(xp|0)){hudCache.xp=xp|0;$('xpbar').style.width=xp+'%';}
   const st=Math.floor(heat);let h='';for(let i=1;i<=5;i++)h+='<span class="'+(i<=st?'on':'off')+'">\u2605</span>';setTxt('heat',h,true);
   const nb=Math.round(nitro*100);if(hudCache.nb!==nb){hudCache.nb=nb;$('nitbar').style.width=nb+'%';}
   setTxt('timers',surgeT>0?'<div class="tm">'+S().timerSurge+' '+Math.ceil(surgeT)+'s</div>':'',true);
+  {const fb=$('frzBtn'),has=save.up.frz>0;if(fb.style.display!==(has?'block':'none'))fb.style.display=has?'block':'none';
+   if(has){fb.textContent='❄ '+(freezeCD>0?Math.ceil(freezeCD)+'s':S().frzBtn);fb.disabled=freezeCD>0||freezeT>0;}
+   $('frzFx').style.opacity=freezeT>0?1:0;}
   updateMission();updateStickGhost();
 }
 function syncMute(){$('muteBtn').innerHTML=save.mute?'&#128263;':'&#128266;';if(AC)master.gain.value=(save.mute||audioHold)?0:0.55;}
@@ -1483,7 +1530,7 @@ function applyLang(){
   $('shopBtn').firstElementChild.textContent=s.upgrades;
   hudCache.lvl=null;hudCache.mission=null;
 }
-function toggleLang(){save.lang=save.lang==='en'?'ar':'en';applyLang();if(shopOpen)renderShop();store();}
+function toggleLang(){save.lang=save.lang==='en'?'ar':'en';applyLang();if(shopOpen){renderShop();if($('board').classList.contains('open'))renderBoard();}store();}
 $('langBtn').addEventListener('click',e=>{e.stopPropagation();toggleLang();this_blur(e);});
 $('startLang').addEventListener('click',e=>{e.stopPropagation();toggleLang();});
 function this_blur(e){try{e.currentTarget.blur();}catch(_){}}
@@ -1499,26 +1546,44 @@ function renderShop(){
   const s=S();
   $('shopTitle').textContent=s.shop;$('resume').textContent=s.resume;$('zoneHead').textContent=s.zones;
   let h='';
-  for(const k of ['magnet','rope','engine','crusher']){
-    const lv=save.up[k],u=UPS[k],cost=upCost(k);
+  for(const k of Object.keys(UPS)){
+    const lv=save.up[k],u=UPS[k],cost=upCost(k),lk=u.unlock&&totLvl()<u.unlock;
     let pips='';for(let i=0;i<u.max;i++)pips+='<i class="pip'+(i<lv?' on':'')+'"></i>';
     h+='<div class="row"><div><b>'+s[k]+(k==='crusher'?' x'+crushMult():'')+'</b><small>'+s[k+'D']+'</small><div class="pips">'+pips+'</div></div>'+
-       '<button class="buy" data-act="up" data-k="'+k+'" '+(cost==null||save.cash<cost?'disabled':'')+'>'+(cost==null?s.max:'$'+fmt(cost))+'</button></div>';
+       '<button class="buy" data-act="up" data-k="'+k+'" '+(lk||cost==null||save.cash<cost?'disabled':'')+'>'+(lk?s.unlockAt+' '+u.unlock:cost==null?s.max:'$'+fmt(cost))+'</button></div>';
   }
   $('upList').innerHTML=h;
   let zh='';
+  let firstLocked=-1,hid=0;
   ZONES.forEach((z,i)=>{
     const un=save.zones[i];let label,attr,sub='';
+    if(!un){if(firstLocked<0)firstLocked=i;if(i>firstLocked+2){hid++;return;}}
     if(i===save.zone){label=s.here;attr='disabled';}
     else if(un){label=s.go;attr='data-act="go" data-i="'+i+'"';}
-    else{const ok=save.cash>=z.cost&&lvl()>=z.lvl;label=s.unlock+' $'+fmt(z.cost);attr=ok?'data-act="unlock" data-i="'+i+'"':'disabled';sub=s.need+' '+z.lvl;}
+    else{const ok=save.cash>=z.cost&&totLvl()>=z.lvl;label=s.unlock+' $'+fmt(z.cost);attr=ok?'data-act="unlock" data-i="'+i+'"':'disabled';sub=s.need+' '+z.lvl;}
     zh+='<div class="row"><div><b>'+z.n[save.lang]+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div><button class="buy alt" '+attr+'>'+label+'</button></div>';
   });
+  if(hid)zh+='<div class="row"><small>+'+hid+' '+s.moreCities+'</small></div>';
   $('zoneList').innerHTML=zh;
   $('extras').innerHTML='<div class="set"><button class="buy" data-act="lang">'+s.lang+'</button><button class="buy" data-act="snd">'+s.sound+': '+(save.mute?s.off:s.on)+'</button></div>';
 }
+function renderBoard(){
+  const s=S(),ar=save.lang==='ar';
+  $('boardTitle').textContent='🏆 '+s.boardT;$('boardClose').textContent=s.resume;
+  const done=save.zones.filter(Boolean).length;
+  const rows=[[s.rkTitle,save.prestige>=10?s.king:s.prestige+' '+save.prestige],[s.rkLevel,totLvl()+' / 1000'],[s.rkCash,'$'+fmt(save.cash)],[s.rkTotal,'$'+fmt(save.totalEarned)],[s.rkCombo,'x'+save.bestCombo],[s.rkCities,done+'/'+ZONES.length],[s.rkNow,ZONES[save.zone].n[save.lang]]];
+  let h=rows.map(r=>'<div class="row"><div><b>'+r[0]+'</b></div><div class="rv">'+r[1]+'</div></div>').join('');
+  h+='<div class="sec">'+s.rkFirst+'</div>';
+  h+=Object.keys(save.firsts).map(Number).sort((a,b)=>save.firsts[b]-save.firsts[a]).slice(0,8).map(i=>'<div class="row"><div><b>'+ZONES[i].n[save.lang]+'</b></div><div class="rv">'+new Date(save.firsts[i]).toLocaleDateString(ar?'ar':'en')+'</div></div>').join('');
+  h+='<small class="bnote">'+s.boardNote+'</small>';
+  $('boardBody').innerHTML=h;
+}
+function openBoard(){if(shopOpen)return;shopOpen=true;for(const k in keys)keys[k]=false;joy.active=false;hideStick();setMagnet(false);setPlaying(false);refreshHold();document.body.classList.add('shopOpen');renderBoard();$('board').classList.add('open');}
+$('boardBtn').addEventListener('click',e=>{e.stopPropagation();e.currentTarget.blur();if(started)openBoard();});
+$('boardClose').addEventListener('click',closeShop);
+$('frzBtn').addEventListener('pointerdown',e=>{e.stopPropagation();useFreeze();});
 function openShop(){if(shopOpen)return;shopOpen=true;for(const k in keys)keys[k]=false;joy.active=false;hideStick();setMagnet(false);setPlaying(false);refreshHold();document.body.classList.add('shopOpen');renderShop();$('shop').classList.add('open');}
-function closeShop(){if(!shopOpen)return;shopOpen=false;$('shop').classList.remove('open');document.body.classList.remove('shopOpen');refreshHold();store();setPlaying(true);}
+function closeShop(){if(!shopOpen)return;shopOpen=false;$('shop').classList.remove('open');$('board').classList.remove('open');document.body.classList.remove('shopOpen');refreshHold();store();setPlaying(true);}
 (()=>{
   const sb=$('shopBtn');let lastTouch=0;
   const fire=()=>{initAudio();sb.blur();openShop();};
@@ -1528,12 +1593,12 @@ function closeShop(){if(!shopOpen)return;shopOpen=false;$('shop').classList.remo
 $('resume').addEventListener('click',closeShop);
 $('shop').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b||b.disabled)return;const a=b.dataset.act;initAudio();
-  if(a==='up'){const k=b.dataset.k,c=upCost(k);if(c!=null&&save.cash>=c){save.cash-=c;save.up[k]++;sfx(k==='magnet'&&save.up.magnet===1?'up':'cha');store();renderShop();}}
+  if(a==='up'){const k=b.dataset.k,c=upCost(k);if(c!=null&&save.cash>=c&&!(UPS[k].unlock&&totLvl()<UPS[k].unlock)){save.cash-=c;save.up[k]++;sfx(k==='magnet'&&save.up.magnet===1?'up':'cha');store();renderShop();}}
   else if(a==='go'){const gi=+b.dataset.i;poki.commercial(()=>{save.zone=gi;resetZone();store();closeShop();});}
   else if(a==='unlock'){
     const i=+b.dataset.i,z=ZONES[i];
-    if(save.cash>=z.cost&&lvl()>=z.lvl){
-      save.cash-=z.cost;save.zones[i]=true;store();
+    if(save.cash>=z.cost&&totLvl()>=z.lvl){
+      save.cash-=z.cost;save.zones[i]=true;if(!save.firsts[i])save.firsts[i]=Date.now();store();
       poki.commercial(()=>{save.zone=i;resetZone();store();renderShop();closeShop();banner(z.n[save.lang]);});
     }
   }
