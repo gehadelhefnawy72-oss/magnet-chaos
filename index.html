@@ -240,9 +240,11 @@ poki.init();
 
 /* ================= SAVE ================= */
 const KEY='magnetChaosSave_v1';
-let save={cash:0,xp:0,up:{magnet:0,rope:0,engine:0,crusher:0,csp:0,coin:0,sup:0,laser:0,frz:0},zones:[true,false,false,false,false],zone:0,lang:'en',mute:false,prestige:0,totalEarned:0,bestCombo:0,firsts:{}};
-function load(){try{const s=localStorage.getItem(KEY);if(s){const o=JSON.parse(s);save=Object.assign(save,o);save.up=Object.assign({magnet:0,rope:0,engine:0,crusher:0,csp:0,coin:0,sup:0,laser:0,frz:0},o.up||{});}}catch(e){}}
-function store(){try{localStorage.setItem(KEY,JSON.stringify(save));}catch(e){}}
+let save={cash:0,xp:0,up:{magnet:0,rope:0,engine:0,crusher:0,csp:0,coin:0,sup:0,laser:0,frz:0},zup:{},zones:[true,false,false,false,false],zone:0,lang:'en',mute:false,prestige:0,totalEarned:0,bestCombo:0,firsts:{}};
+const UP0=()=>({magnet:0,rope:0,engine:0,crusher:0,csp:0,coin:0,sup:0,laser:0,frz:0,mag2:0,crush2:0,cash2:0});
+function bindUp(){if(!save.zup)save.zup={};const z=save.zone|0;save.zup[z]=Object.assign(UP0(),save.zup[z]||{});save.up=save.zup[z];}
+function load(){try{const s=localStorage.getItem(KEY);if(s){const o=JSON.parse(s);save=Object.assign(save,o);if(!o.zup){save.zup={};save.zup[o.zone|0]=Object.assign(UP0(),o.up||{});}}}catch(e){}bindUp();}
+function store(){try{localStorage.setItem(KEY,JSON.stringify(save,function(k,v){return(k==='up'&&this===save)?undefined:v;}));}catch(e){}}
 load();
 try{if(!localStorage.getItem(KEY))save.lang=((navigator.language||'en')+'').toLowerCase().startsWith('ar')?'ar':'en';}catch(e){}
 setInterval(store,10000);
@@ -251,6 +253,7 @@ addEventListener('beforeunload',store);
 /* ================= TEXT / LANGUAGE ================= */
 const L={
 en:{upgrades:'UPGRADES',nitro:'NITRO',magnetBtn:'MAGNET',shop:'UPGRADE YARD',resume:'Back to work',
+ mag2:'Magnet Core',mag2D:'Even stronger, wider pull',crush2:'Turbo Crusher',crush2D:'Crushes even faster',cash2:'Golden Scrap',cash2D:'+15% cash per level',
  magnet:'Magnet Power',magnetD:'Bigger pull, grabs heavier junk',rope:'Rope & Swing',ropeD:'Longer chain, wider wrecking swings',
  engine:'Engine & Nitro',engineD:'More speed and towing power',crusher:'Mega Crusher',crusherD:'Scrap pays more cash',
  buy:'Buy',max:'MAX',zones:'Zones',unlock:'Unlock',go:'Go',here:'You are here',need:'Needs level',
@@ -263,6 +266,7 @@ en:{upgrades:'UPGRADES',nitro:'NITRO',magnetBtn:'MAGNET',shop:'UPGRADE YARD',res
  sp_armored:'ARMORED CASH TRUCK! Crush it for $2,500 - hit it hard to crack the armor',sp_goldsafe:'GOLDEN VAULT! Crush it for $1,500',sp_drone:'DRONE OVERHEAD! Grab & smash it: +$3,500',
  ar_armored:'$2,500',ar_goldsafe:'$1,500',ar_drone:'$3,500',airSmash:'AIR SMASH!',armorHit:'ARMOR',armorOff:'ARMOR CRACKED!',play:'PLAY',tagline:'Scrapyard Tycoon',goal:'GOAL',m1:'Grab junk with the magnet and drop it in the CRUSHER',m2:'Buy MAGNET POWER in UPGRADES',m3:'Smash two cars in a row for a COMBO',m4:'Reach LEVEL 3',m5:'Unlock',m6:'Max out every upgrade',csp:'Crusher Speed',cspD:'Crushes junk faster',coin:'Coin Magnet',coinD:'+10% cash per level',sup:'Super Magnet',supD:'Pulls from much farther',laser:'Laser Crusher',laserD:'Wider, faster crushing zone',frz:'Time Freeze',frzD:'Freezes cops & drones for 2s (key F)',unlockAt:'Unlocks at level',newUp:'NEW UPGRADE UNLOCKED!',prestige:'PRESTIGE',king:'KING MAGNET',moreCities:'more cities',frzBtn:'FREEZE [F]',sp_boss:'BOSS! Crack the armor and crush it for $20,000',ar_boss:'$20,000',boardT:'Records',rkTitle:'Title',rkLevel:'Total level',rkCash:'Cash',rkTotal:'Total earned',rkCombo:'Best combo',rkCities:'Cities unlocked',rkNow:'Current city',rkFirst:'First time reaching each city',boardNote:'Online TOP 10 and friends ranking is coming soon. These are your personal records.'},
 ar:{upgrades:'التطوير',nitro:'نيترو',magnetBtn:'مغناطيس',shop:'ورشة التطوير',resume:'ارجع للشغل',
+ mag2:'نواة المغناطيس',mag2D:'سحب أقوى ومدى أوسع',crush2:'مكبس تيربو',crush2D:'تكسير أسرع بكتير',cash2:'خردة ذهبية',cash2D:'+15% فلوس لكل مستوى',
  magnet:'قوة المغناطيس',magnetD:'سحب أقوى ويرفع خردة أثقل',rope:'الحبل والتأرجح',ropeD:'سلسلة أطول وتأرجح أوسع',
  engine:'المحرك والنيترو',engineD:'سرعة وقوة سحب أكبر',crusher:'المكبس العملاق',crusherD:'الخردة تدفع مالاً أكثر',
  buy:'اشترِ',max:'الحد الأقصى',zones:'المناطق',unlock:'افتح',go:'اذهب',here:'أنت هنا',need:'يتطلب مستوى',
@@ -335,9 +339,11 @@ const ZONES=[
   if(!save.firsts)save.firsts={};if(!save.firsts[0])save.firsts[0]=Date.now();
   save.prestige=save.prestige||0;save.totalEarned=save.totalEarned||0;save.bestCombo=save.bestCombo||0;
 })();
-const UPS={magnet:{max:10,base:100,g:1.6},rope:{max:8,base:80,g:1.55},engine:{max:8,base:120,g:1.6},crusher:{max:3,costs:[400,2500,15000]},
-  csp:{max:5,base:300,g:1.7,unlock:10},coin:{max:5,base:500,g:1.8,unlock:20},sup:{max:5,base:800,g:1.8,unlock:30},laser:{max:3,costs:[5000,30000,200000],unlock:40},frz:{max:5,base:2000,g:1.9,unlock:50}};
-const upCost=k=>{const u=UPS[k],l=save.up[k];if(l>=u.max)return null;if(k==='magnet'&&l===0)return 30;return u.costs?u.costs[l]:Math.round(u.base*Math.pow(u.g,l));};
+const UPS={magnet:{max:10,from:1000,to:10000},rope:{max:8,from:1500,to:15000},engine:{max:8,from:2000,to:20000},crusher:{max:3,from:2500,to:40000},
+  csp:{max:5,from:1000,to:12000,unlock:10},coin:{max:5,from:1200,to:25000,unlock:20},sup:{max:5,from:1500,to:30000,unlock:30},laser:{max:3,from:2000,to:40000,unlock:40},frz:{max:5,from:2000,to:35000,unlock:50},
+  mag2:{max:5,from:3000,to:40000,unlock:15},crush2:{max:5,from:2500,to:38000,unlock:25},cash2:{max:5,from:3500,to:40000,unlock:35}};
+const zoneMul=()=>1+0.4*save.zone;
+const upCost=k=>{const u=UPS[k],l=save.up[k];if(l>=u.max)return null;if(k==='magnet'&&l===0&&save.zone===0)return 30;const g=Math.pow(u.to/u.from,1/(u.max-1));return Math.round(u.from*Math.pow(g,l)*zoneMul()/10)*10;};
 const levelOf=xp=>Math.min(100,1+Math.floor(Math.sqrt(xp/40)));
 const lvl=()=>levelOf(save.xp);
 const PRES=[1,1.3,1.7,2.2,2.8,3.5,4.5,6,8,11,15];
@@ -361,12 +367,12 @@ let started=false,mouseDown=false,joyOX=0,joyOY=0,freezeT=0,freezeCD=0;
 const joy={x:0,y:0,active:false};
 let touchNitro=false;
 
-const mZ=()=>Math.min(10,save.up.magnet+(trialT>0?4:0));
+const mZ=()=>Math.min(14,save.up.magnet+save.up.mag2+(trialT>0?4:0));
 const maxTier=()=>Math.min(5,1+Math.floor(mZ()/2));
 const magRad=()=>(78+mZ()*13)*(1+0.15*save.up.sup)*(surgeT>0?2:1);
 const ropeLen=()=>120+save.up.rope*24;
-const cashMult=()=>(surgeT>0?2:1)*(boostT>0?2:1)*PRES[Math.min(10,save.prestige)]*(1+0.1*save.up.coin);
-const crushT=()=>0.6*(1-0.12*save.up.csp-0.08*save.up.laser);
+const cashMult=()=>(surgeT>0?2:1)*(boostT>0?2:1)*PRES[Math.min(10,save.prestige)]*(1+0.1*save.up.coin)*(1+0.15*save.up.cash2);
+const crushT=()=>0.6*(1-0.12*save.up.csp-0.08*save.up.laser)*(1-0.08*save.up.crush2);
 const crushMult=()=>[1,1.6,3,5][save.up.crusher];
 const earlyP=()=>save.xp<3000&&save.prestige===0;
 const econMul=()=>{if(!earlyP())return 0.55;if(time<40)return 1.6;if(time>=100)return 0.55;return 1.6-(time-40)/60*1.05;};
@@ -466,6 +472,7 @@ function randPos(minD){
 }
 const targetCount=()=>save.zone===0?48:Math.min(56,26+save.zone*4);
 function resetZone(){
+  bindUp();
   objs=[];parts=[];texts=[];skids=[];meteors=[];heat=0;combo=0;cashTruckRef=null;specialT=22;
   truck={x:820,y:850,vx:0,vy:0,a:0,r:TR,truck:true,held:false,fling:0,cd:0,wreck:false,crush:-1};
   mag={x:truck.x+80,y:truck.y,vx:0,vy:0};
