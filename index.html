@@ -312,18 +312,16 @@ const ZONES=[
  {n:{en:'Cyber Neon City',ar:'مدينة النيون'},cost:1000000,lvl:50,bg:'#150d2b',grid:'#2a1b52',pool:[['neoncar',4],['hover',3],['core',3],['robot',1.2],['vending',1]]}
 ];
 (()=>{
-  const CD=[["Cairo", "القاهرة"], ["Giza", "الجيزة"], ["Alexandria", "اسكندرية"], ["Dubai", "دبي"], ["Riyadh", "الرياض"], ["Doha", "الدوحة"], ["Beirut", "بيروت"], ["Amman", "عمان"], ["Jerusalem", "القدس"], ["Istanbul", "اسطنبول"], ["Paris", "باريس"], ["London", "لندن"], ["Berlin", "برلين"], ["Madrid", "مدريد"], ["Rome", "روما"], ["New York", "نيويورك"], ["Los Angeles", "لوس انجلوس"], ["Las Vegas", "لاس فيجاس"], ["Toronto", "تورنتو"], ["Mexico City", "مكسيكو سيتي"], ["Sao Paulo", "ساو باولو"], ["Tokyo", "طوكيو"], ["Seoul", "سيول"], ["Beijing", "بكين"], ["Shanghai", "شنغهاي"], ["Mumbai", "مومباي"], ["Bangkok", "بانكوك"], ["Jakarta", "جاكرتا"], ["Sydney", "سيدني"], ["Cape Town", "كيب تاون"], ["Lagos", "لاجوس"], ["Moscow", "موسكو"], ["Kyiv", "كييف"], ["Stockholm", "ستوكهولم"], ["Amsterdam", "امستردام"], ["Moon Base", "القمر"], ["Mars Base", "المريخ"], ["Space Station", "محطة الفضاء"], ["Venus", "كوكب الزهرة"], ["Jupiter", "كوكب المشتري"], ["Saturn", "زحل"], ["Galaxy", "المجرة"], ["Black Hole", "الثقب الاسود"], ["Diamond City", "مدينة الالماس"], ["GOLD CITY", "مدينة الذهب"]];
+  const CD=[["Tokyo", "طوكيو"], ["Delhi", "دلهي"], ["Shanghai", "شنغهاي"], ["Sao Paulo", "ساو باولو"], ["Mexico City", "مكسيكو سيتي"], ["Dhaka", "دكا"], ["Beijing", "بكين"], ["Mumbai", "مومباي"], ["Osaka", "أوساكا"], ["Karachi", "كراتشي"], ["Chongqing", "تشونغتشينغ"], ["Istanbul", "اسطنبول"], ["Buenos Aires", "بوينس آيرس"], ["Kolkata", "كولكاتا"], ["Lagos", "لاجوس"], ["Tianjin", "تيانجين"], ["Manila", "مانيلا"], ["Guangzhou", "قوانغتشو"], ["Rio de Janeiro", "ريو دي جانيرو"], ["Lahore", "لاهور"], ["Bangalore", "بنغالور"], ["Shenzhen", "شنتشن"], ["Moscow", "موسكو"], ["Chennai", "تشيناي"], ["Bogota", "بوغوتا"], ["Paris", "باريس"], ["Jakarta", "جاكرتا"], ["Lima", "ليما"], ["Bangkok", "بانكوك"], ["Seoul", "سيول"], ["Hyderabad", "حيدر آباد"], ["London", "لندن"], ["Tehran", "طهران"], ["New York", "نيويورك"], ["Wuhan", "ووهان"], ["Hong Kong", "هونغ كونغ"], ["Baghdad", "بغداد"], ["Riyadh", "الرياض"], ["Singapore", "سنغافورة"], ["Dubai", "دبي"], ["Los Angeles", "لوس أنجلوس"], ["Madrid", "مدريد"], ["Toronto", "تورنتو"], ["Berlin", "برلين"], ["Mars City", "مدينة المريخ"]];
   const TH=[['taxi','sedan','compact','van','bus','vending','bike'],['jeep','van','fuel','cart','bike','sedan'],['jet','heli','cart','fuel','bus','van'],['tank','missile','jeep','heli','van'],['neoncar','hover','core','robot','vending']];
   const hex=(h,s,l)=>{s/=100;l/=100;const a=s*Math.min(l,1-l),f=n=>{const k=(n+h/30)%12;return Math.round(255*(l-a*Math.max(-1,Math.min(k-3,9-k,1))));};return '#'+[f(0),f(8),f(4)].map(v=>v.toString(16).padStart(2,'0')).join('');};
   CD.forEach((c,j)=>{
     const i=5+j;let seed=i*7919+13;const rr=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};
-    const space=i>=40;const th=i>=40?4:(i<=13?1:[0,2,3,0][i%4]);
+    const nm=c[0],space=i===49;const th=space?4:(['Karachi','Lahore','Istanbul','Tehran','Baghdad','Riyadh','Dubai'].includes(nm)?1:[0,2,3,0][i%4]);
     let bg,grid;
-    if(i===49){bg='#3d3010';grid='#8a7126';}else if(i===48){bg='#12303a';grid='#3a8aa3';}
-    else if(space){const h=(i*53)%360;bg=hex(h,45,11);grid=hex(h,55,26);}
+    if(space){bg='#3a1a12';grid='#9a4a2a';}
     else{const h=(i*47)%360;bg=hex(h,22,22);grid=hex(h,26,31);}
     const pool=TH[th].map(n=>[n,+(1+rr()*3).toFixed(2)]);
-    if(i>=48)pool.push(['safe',3]);
     ZONES.push({n:{en:c[0],ar:c[1]},cost:(i-2)*1000000,lvl:Math.min(95,50+(i-4)),bg,grid,pool});
   });
   while(save.zones.length<ZONES.length)save.zones.push(false);
