@@ -77,7 +77,7 @@ canvas{position:fixed;left:0;top:0;right:0;bottom:0;background:#14110f}
 .ad{width:100%;margin-top:8px;background:var(--volt);color:var(--asphalt)}
 .ad:disabled{background:#3a342f}
 .set{display:flex;gap:8px;margin-top:10px}
-.set .buy{flex:1;min-width:0;font-size:14px;padding:8px 4px;line-height:1.2;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#3a342f;color:var(--ink)}.set .buy.alt{background:var(--hazard);color:var(--asphalt)}
+.set .buy{flex:1;min-width:0;font-size:14px;padding:8px 4px;line-height:1.2;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#3a342f;color:var(--ink)}.set .buy.alt{background:var(--hazard);color:var(--asphalt);flex:1.6;overflow:visible;text-overflow:clip;font-size:13px}
 body.kbd #touch,body.kbd #stickBase,body.kbd #magZone{display:none!important}
 #langWrap{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 #boardBtn{font-size:18px;min-width:44px}
@@ -1743,7 +1743,7 @@ function renderShop(){
   });
   if(hid)zh+='<div class="row"><small>+'+hid+' '+s.moreCities+'</small></div>';
   $('zoneList').innerHTML=zh;
-  $('extras').innerHTML='<div class="set"><button class="buy" data-act="lang">'+s.lang+'</button><button class="buy" data-act="snd">'+s.sound+': '+(save.mute?s.off:s.on)+'</button><button class="buy alt" data-act="reward">&#9654; '+(save.lang==='ar'?'شاهد إعلان: +$':'Watch ad: +$')+fmt(rewardAmt())+'</button></div>';
+  $('extras').innerHTML='<div class="set"><button class="buy" data-act="lang">'+s.lang+'</button><button class="buy" data-act="snd">'+s.sound+': '+(save.mute?s.off:s.on)+'</button><button class="buy alt" data-act="reward">&#127916; '+(save.lang==='ar'?'إعلان: +$':'Ad: +$')+fmt(rewardAmt())+'</button></div>';
 }
 function renderBoard(){
   const s=S(),ar=save.lang==='ar';
