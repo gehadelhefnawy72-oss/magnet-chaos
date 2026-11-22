@@ -231,7 +231,7 @@ const fmt=n=>Math.round(n).toLocaleString('en-US');
 
 /* ================= POKI SDK (safe wrappers, no-ops when SDK is absent) ================= */
 let adActive=false,focusLost=false,sdkOk=false,uiOk=false,loadedSent=false,adsReady=false;
-const SHOW_REWARDED=true; /* master switch: set false to keep the Watch Ad button hidden (e.g. during first Poki review) */
+const SHOW_REWARDED=false; /* master switch: set false to keep the Watch Ad button hidden (e.g. during first Poki review) */
 function resumeAfterAd(){try{if(started&&!shopOpen&&!document.hidden)setPlaying(true);}catch(e){}}
 const poki={
   init(){
@@ -551,6 +551,7 @@ function uiPush(kind,text,n){
     if(n<=1&&(cur||uiq.list.length))return;
   }
   uiq.list.push({kind,text,n,at:time});
+  if(cur&&cur.kind!=='info'&&kind!=='info'&&UI_PR[kind]>UI_PR[cur.kind]&&uiq.t>0.3)uiq.t=0.3;
   uiq.list.sort((a,b)=>UI_PR[b.kind]-UI_PR[a.kind]);
   while(uiq.list.length>5)uiq.list.pop();
 }
@@ -561,7 +562,7 @@ function uiShow(it){
   if(it.kind==='info'){
     const e=$('banner');e.dir=rtl;e.textContent=it.text;e.style.display='block';e.style.opacity=0;requestAnimationFrame(()=>{e.style.opacity=1;});
   }else{
-    const e=$('combo');e.dir=rtl;e.textContent=it.text;
+    const e=$('combo');e.dir=rtl;e.textContent=it.text;e.style.top=(it.kind==='cop'||it.kind==='air')?'24%':'36%';
     e.style.color=it.kind==='warn'?'#ff4b3e':it.kind==='lvl'?'#ffc400':it.kind==='cop'?'#6fb4ff':it.kind==='air'?'#6fe3ff':it.n>=5?'#ffd23f':it.n>=3?'#ffb36b':'#fff';
     e.style.opacity=1;const sc=it.kind==='lvl'?1.5:1.25+Math.min(it.n||1,8)*0.05,rest=it.kind==='lvl'?1.2:1;
     e.style.transform='translateX(-50%) scale('+sc+')';clearTimeout(uiShow.tm);uiShow.tm=setTimeout(()=>{e.style.transform='translateX(-50%) scale('+rest+')';},110);
@@ -1556,17 +1557,17 @@ function drawMagnet(){
 
 let arrLbl=[];
 function edgeArrow(wx,wy,col,label){
-  const sx=(wx-cam.x)*cam.z+W/2,sy=(wy-cam.y)*cam.z+H/2,m=46;
+  const sx=(wx-cam.x)*cam.z+W/2,sy=(wy-cam.y)*cam.z+H/2,m=46,btm=isTouch?Math.min(H*0.42,230):m;
   if(sx>m&&sx<W-m&&sy>m&&sy<H-m)return;
   const cx=W/2,cy=H/2,dx=sx-cx,dy=sy-cy,k=Math.min((W/2-m)/Math.abs(dx||1e-6),(H/2-m)/Math.abs(dy||1e-6));
-  const ex=cx+dx*k,ey=cy+dy*k,a=Math.atan2(dy,dx);
+  const ex=cx+dx*k,ey=Math.min(cy+dy*k,H-btm),a=Math.atan2(dy,dx);
   ctx.save();ctx.translate(ex,ey);ctx.rotate(a);ctx.scale(.8,.8);
   ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(18,0);ctx.lineTo(-10,-14);ctx.lineTo(-4,0);ctx.lineTo(-10,14);ctx.closePath();ctx.fill();
   ctx.restore();
   ctx.font=fnt(13);ctx.textAlign='center';
   const tw=ctx.measureText(label).width+6;
   let lx=ex-Math.cos(a)*30,ly=ey-Math.sin(a)*30+4;
-  lx=clamp(lx,tw/2+4,W-tw/2-4);ly=clamp(ly,16,H-8);
+  lx=clamp(lx,tw/2+4,W-tw/2-4);ly=clamp(ly,16,H-(isTouch?btm-8:8));
   for(let n=0;n<8;n++){
     let hit=false;
     for(const r of arrLbl){if(Math.abs(lx-r.x)<(tw+r.w)/2&&Math.abs(ly-r.y)<14){hit=true;break;}}
