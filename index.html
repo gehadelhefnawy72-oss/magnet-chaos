@@ -170,6 +170,7 @@ body.ar .sctl{font-size:clamp(14px,2.6vh,20px)}
     <div class="chip"><span id="lvl">LV 1</span><div class="bar"><i id="xpbar"></i></div></div>
     <div class="chip" id="heat"></div>
     <div class="chip" id="nit"><span data-i="nitro">NITRO</span><div class="bar"><i id="nitbar"></i></div></div>
+    <div class="chip" id="chest" style="display:none;border-left-color:#ffd23f"></div>
   </div>
   <div class="hud" id="topc"><div id="mission"><span class="g" data-i="goal">GOAL</span><span id="missionTxt"></span></div><div id="banner"></div><div id="timers"></div></div>
   <div class="hud" id="right">
@@ -290,7 +291,7 @@ en:{upgrades:'UPGRADES',nitro:'NITRO',magnetBtn:'MAGNET',shop:'UPGRADE YARD',res
  hintK:'WASD / Arrows: drive · SPACE: nitro · E / Click: magnet · B: upgrades',hintT:'Drag left to drive. Hold the right side to grab, release to fling.',
  timerSurge:'SURGE',timerBoost:'2x CASH',timerTrial:'GIGA MAGNET',
  sp_armored:'ARMORED CASH TRUCK! Crush it for $2,500 - hit it hard to crack the armor',sp_goldsafe:'GOLDEN VAULT! Crush it for $1,500',sp_drone:'DRONE OVERHEAD! Grab & smash it: +$3,500',
- ar_armored:'$2,500',ar_goldsafe:'$1,500',ar_drone:'$3,500',airSmash:'AIR SMASH!',armorHit:'ARMOR',armorOff:'ARMOR CRACKED!',play:'PLAY',tagline:'Scrapyard Tycoon',goal:'GOAL',m1:'Grab junk with the magnet and drop it in the CRUSHER',m2:'Buy MAGNET POWER in UPGRADES',m3:'Smash two cars in a row for a COMBO',m4:'Reach LEVEL 3',m5:'Unlock',m6:'Max out every upgrade',csp:'Crusher Speed',cspD:'Crushes junk faster',coin:'Coin Magnet',coinD:'+10% cash per level',sup:'Super Magnet',supD:'Pulls from much farther',laser:'Laser Crusher',laserD:'Wider, faster crushing zone',frz:'Time Freeze',frzD:'Freezes cops & drones for 2s (key F)',unlockAt:'Unlocks at level',newUp:'NEW UPGRADE UNLOCKED!',prestige:'PRESTIGE',king:'KING MAGNET',moreCities:'more cities',frzBtn:'FREEZE [F]',sp_boss:'BOSS! Crack the armor and crush it for $20,000',ar_boss:'$20,000',boardT:'Records',rkTitle:'Title',rkLevel:'Total level',rkCash:'Cash',rkTotal:'Total earned',rkCombo:'Best combo',rkCities:'Cities unlocked',rkNow:'Current city',rkFirst:'First time reaching each city',boardNote:'Online TOP 10 and friends ranking is coming soon. These are your personal records.'},
+ ar_armored:'$2,500',ar_goldsafe:'$1,500',ar_drone:'$3,500',airSmash:'AIR SMASH!',armorHit:'ARMOR',armorOff:'ARMOR CRACKED!',play:'PLAY',tagline:'Scrapyard Tycoon',goal:'GOAL',m1:'Grab junk with the magnet and drop it in the CRUSHER',m2:'Buy MAGNET POWER in UPGRADES',m3:'Smash two cars in a row for a COMBO',m4:'Reach LEVEL 3',m5:'Unlock',m6:'Max out every upgrade',csp:'Crusher Speed',cspD:'Crushes junk faster',coin:'Coin Magnet',coinD:'+10% cash per level',sup:'Super Magnet',supD:'Pulls from much farther',laser:'Laser Crusher',laserD:'Wider, faster crushing zone',frz:'Time Freeze',frzD:'Freezes cops & drones for 2s (key F)',unlockAt:'Unlocks at level',newUp:'NEW UPGRADE UNLOCKED!',prestige:'PRESTIGE',king:'KING MAGNET',moreCities:'more cities',frzBtn:'FREEZE [F]',sp_boss:'BOSS! Crack the armor and crush it for $20,000',ar_boss:'$20,000',boardT:'Records',rkTitle:'Title',rkLevel:'Total level',rkCash:'Cash',rkTotal:'Total earned',rkCombo:'Best combo',rkCities:'Cities unlocked',rkNow:'Current city',rkFirst:'First time reaching each city',boardNote:'Your personal records on this device.'},
 ar:{upgrades:'التطوير',nitro:'نيترو',magnetBtn:'مغناطيس',shop:'ورشة التطوير',resume:'ارجع للشغل',
  mag2:'نواة المغناطيس',mag2D:'سحب أقوى ومدى أوسع',crush2:'مكبس تيربو',crush2D:'تكسير أسرع بكتير',cash2:'خردة ذهبية',cash2D:'+15% فلوس لكل مستوى',
  magnet:'قوة المغناطيس',magnetD:'سحب أقوى ويرفع خردة أثقل',rope:'الحبل والتأرجح',ropeD:'سلسلة أطول وتأرجح أوسع',
@@ -304,7 +305,7 @@ ar:{upgrades:'التطوير',nitro:'نيترو',magnetBtn:'مغناطيس',shop
  hintK:'WASD / الأسهم: قيادة · مسافة: نيترو · E أو كليك: مغناطيس · B: التطوير',hintT:'اسحب يساراً للقيادة. اضغط مطولاً يمين الشاشة للإمساك وارفع إصبعك للقذف.',
  timerSurge:'شحن',timerBoost:'مال x2',timerTrial:'مغناطيس عملاق',
  sp_armored:'شاحنة نقود مدرعة! اسحقها لتربح 2500$ - اضربها بقوة لكسر الدرع',sp_goldsafe:'خزنة ذهبية! اسحقها لتربح 1500$',sp_drone:'طائرة درون! أمسكها وحطمها: +3500$',
- ar_armored:'2500$',ar_goldsafe:'1500$',ar_drone:'3500$',airSmash:'تحطيم جوي!',armorHit:'درع',armorOff:'انكسر الدرع!',play:'العب',tagline:'إمبراطور الخردة',goal:'الهدف',m1:'امسك الخردة بالمغناطيس وارمِها في المكبس',m2:'اشترِ قوة المغناطيس من التطوير',m3:'حطّم سيارتين ورا بعض لتحصل على كومبو',m4:'اوصل للمستوى 3',m5:'افتح',m6:'طوّر كل شيء للحد الأقصى',csp:'سرعة التكسير',cspD:'يكسّر الخردة أسرع',coin:'مغناطيس العملات',coinD:'+10% فلوس لكل مستوى',sup:'المغناطيس الخارق',supD:'يسحب من بعيد جداً',laser:'مكسّر الليزر',laserD:'منطقة تكسير أوسع وأسرع',frz:'تجميد الزمن',frzD:'يجمّد الشرطة والدرون ثانيتين (زر F)',unlockAt:'يفتح عند المستوى',newUp:'تطوير جديد اتفتح!',prestige:'بريستيج',king:'ملك المغناطيس',moreCities:'مدينة أخرى',frzBtn:'تجميد [F]',sp_boss:'زعيم! اكسر الدرع واسحقه لتربح 20000$',ar_boss:'20000$',boardT:'الأرقام القياسية',rkTitle:'اللقب',rkLevel:'المستوى الكلي',rkCash:'الفلوس',rkTotal:'إجمالي الأرباح',rkCombo:'أعلى كومبو',rkCities:'المدن المفتوحة',rkNow:'المدينة الحالية',rkFirst:'أول مرة وصلت لكل مدينة',boardNote:'ترتيب أفضل 10 لاعبين والأصحاب أونلاين قريباً. دي أرقامك الشخصية.'}
+ ar_armored:'2500$',ar_goldsafe:'1500$',ar_drone:'3500$',airSmash:'تحطيم جوي!',armorHit:'درع',armorOff:'انكسر الدرع!',play:'العب',tagline:'إمبراطور الخردة',goal:'الهدف',m1:'امسك الخردة بالمغناطيس وارمِها في المكبس',m2:'اشترِ قوة المغناطيس من التطوير',m3:'حطّم سيارتين ورا بعض لتحصل على كومبو',m4:'اوصل للمستوى 3',m5:'افتح',m6:'طوّر كل شيء للحد الأقصى',csp:'سرعة التكسير',cspD:'يكسّر الخردة أسرع',coin:'مغناطيس العملات',coinD:'+10% فلوس لكل مستوى',sup:'المغناطيس الخارق',supD:'يسحب من بعيد جداً',laser:'مكسّر الليزر',laserD:'منطقة تكسير أوسع وأسرع',frz:'تجميد الزمن',frzD:'يجمّد الشرطة والدرون ثانيتين (زر F)',unlockAt:'يفتح عند المستوى',newUp:'تطوير جديد اتفتح!',prestige:'بريستيج',king:'ملك المغناطيس',moreCities:'مدينة أخرى',frzBtn:'تجميد [F]',sp_boss:'زعيم! اكسر الدرع واسحقه لتربح 20000$',ar_boss:'20000$',boardT:'الأرقام القياسية',rkTitle:'اللقب',rkLevel:'المستوى الكلي',rkCash:'الفلوس',rkTotal:'إجمالي الأرباح',rkCombo:'أعلى كومبو',rkCities:'المدن المفتوحة',rkNow:'المدينة الحالية',rkFirst:'أول مرة وصلت لكل مدينة',boardNote:'أرقامك الشخصية على هذا الجهاز.'}
 };
 const S=()=>L[save.lang]||L.en;
 const isTouch=(matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window);
@@ -395,6 +396,36 @@ let time=0,shake=0,heat=0,combo=0,lastSmash=-99,eventT=60,surgeT=0,boostT=0,tria
 let waveT=22,slowT=0,bombs=[],shells=[],nitroFx=false,magTrail=[];
 let nitro=1,magnetOn=false,shopOpen=false,playing=false,lastLvl=lvl(),spawnT=0,copT=0,crushing=false;
 let openStage=0;
+/* ===== Golden Chest (every 3 min) + Daily Streak: retention features ===== */
+let chestT=120,chestSec=-1,chestLng='',dailyDone=false;
+function chestReward(){return Math.max(500,Math.round(rewardAmt()*1.5/100)*100);}
+function chestTick(dt){
+  const el=document.getElementById('chest');if(!el||!started)return;
+  if(el.style.display==='none')el.style.display='';
+  chestT-=dt;
+  if(chestT<=0){
+    chestT=180;const amt=chestReward();save.cash+=amt;save.totalEarned+=amt;
+    uiPush('lvl',(save.lang==='ar'?'صندوق ذهبي! +$':'GOLDEN CHEST! +$')+fmt(amt));
+    sfx('cha');sfx('up');shake=Math.max(shake,6);spark(truck.x,truck.y,34,'#ffd23f',420);bills(truck.x,truck.y,26);store();
+  }
+  const sec=Math.max(0,Math.ceil(chestT));
+  if(sec!==chestSec||chestLng!==save.lang){
+    chestSec=sec;chestLng=save.lang;
+    const m=Math.floor(sec/60),r=sec%60,t=m+':'+(r<10?'0':'')+r;
+    el.textContent='\uD83C\uDF81 '+(save.lang==='ar'?'صندوق ذهبي ':'GOLDEN CHEST ')+t;
+    el.style.color=sec<=10?'#ffd23f':'';
+  }
+}
+function dayStr(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function dailyBonus(){
+  if(save.xp<400)return; /* new players get the opening script instead */
+  const now=new Date(),today=dayStr(now);if(save.lastDay===today)return;
+  const y=new Date(now.getTime()-86400000);
+  save.streak=(save.lastDay===dayStr(y))?Math.min(7,(save.streak||0)+1):1;save.lastDay=today;
+  const amt=Math.round(rewardAmt()*(0.5+0.25*save.streak)/100)*100;save.cash+=amt;save.totalEarned+=amt;
+  uiPush('lvl',(save.lang==='ar'?'مكافأة اليوم '+save.streak+'! +$':'DAILY STREAK DAY '+save.streak+'! +$')+fmt(amt));
+  sfx('cha');spark(truck.x,truck.y,26,'#5cff8a',360);bills(truck.x,truck.y,18);store();
+}
 let msgT=0,msgP=0,bannerT=0,comboT=0,hintT=14,tooBigT=0,lastClang=0,cashTruckRef=null,specialT=22,lastSpecial=-1;
 const keys={};
 const stat={crushed:0,maxCombo:0};
@@ -544,6 +575,11 @@ function gearBurst(n){const c=crusher,cy=c.y+c.h/2;for(const gx of [c.x+c.w*.32,
 function ftext(x,y,s,col,big){if(texts.length>=7)texts.shift();texts.push({x:x+rnd(-10,10),y,s,col:col||'#5cff8a',t:0,big:!!big});}
 function uiPush(kind,text,n){
   const cur=uiq.cur;n=n||1;
+  if(kind==='cop'){ /* merge repeated cop smashes into one small message: COP SMASH! +$1,000 x3 */
+    if(cur&&cur.kind==='cop'){cur.cnt=(cur.cnt||1)+1;cur.text=text+' x'+cur.cnt;uiq.t=UI_DUR.cop;uiShow(cur);return;}
+    const ex=uiq.list.find(i=>i.kind==='cop');
+    if(ex){ex.cnt=(ex.cnt||1)+1;ex.text=text+' x'+ex.cnt;return;}
+  }
   if(kind==='combo'){
     if(cur&&cur.kind==='combo'&&!uiq.list.length){cur.text=text;cur.n=n;uiq.t=UI_DUR.combo;uiShow(cur);return;}
     const ex=uiq.list.find(i=>i.kind==='combo');
@@ -564,7 +600,7 @@ function uiShow(it){
   }else{
     const e=$('combo');e.dir=rtl;e.textContent=it.text;e.style.top=(it.kind==='cop'||it.kind==='air')?'24%':'36%';
     e.style.color=it.kind==='warn'?'#ff4b3e':it.kind==='lvl'?'#ffc400':it.kind==='cop'?'#6fb4ff':it.kind==='air'?'#6fe3ff':it.n>=5?'#ffd23f':it.n>=3?'#ffb36b':'#fff';
-    e.style.opacity=1;const sc=it.kind==='lvl'?1.5:1.25+Math.min(it.n||1,8)*0.05,rest=it.kind==='lvl'?1.2:1;
+    e.style.opacity=1;const sc=it.kind==='lvl'?1.5:it.kind==='cop'?((it.cnt>1)?0.8:1.05):1.25+Math.min(it.n||1,8)*0.05,rest=it.kind==='lvl'?1.2:it.kind==='cop'?((it.cnt>1)?0.75:0.95):1;
     e.style.transform='translateX(-50%) scale('+sc+')';clearTimeout(uiShow.tm);uiShow.tm=setTimeout(()=>{e.style.transform='translateX(-50%) scale('+rest+')';},110);
   }
 }
@@ -760,6 +796,7 @@ function update(dt){
   surgeT=Math.max(0,surgeT-dt);boostT=Math.max(0,boostT-dt);trialT=Math.max(0,trialT-dt);
   if(truck.cd>0)truck.cd-=dt;
   uiUpdate(dt);
+  try{chestTick(dt);if(!dailyDone&&time>5){dailyDone=true;dailyBonus();}}catch(e){}
   if(hintT>0){hintT-=dt;if(hintT<=0)$('hint').style.opacity=0;}
 
   /* --- truck --- */
