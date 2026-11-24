@@ -69,7 +69,7 @@ canvas{position:fixed;left:0;top:0;right:0;bottom:0;background:#14110f}
 .row b{font-size:19px;font-weight:normal}
 .row small{display:block;color:var(--steel);font-family:'Segoe UI',Tahoma,sans-serif;font-size:13px}
 .pips{display:flex;gap:3px;margin-top:4px}
-.pip{width:14px;height:7px;background:#3a342f}.pip.on{background:var(--volt)}
+.pip{width:8px;height:7px;background:#3a342f}.pips{flex-wrap:wrap}.pip.on{background:var(--volt)}
 .buy{min-width:96px;font:inherit;font-size:17px;background:var(--cash);color:#06260f;border:0;padding:8px 10px;cursor:pointer;border-radius:3px}
 .buy:disabled{background:#3a342f;color:#7d746c;cursor:default}
 .buy.alt{background:var(--hazard);color:var(--asphalt)}
@@ -144,7 +144,7 @@ body.ar .sctl{font-size:clamp(14px,2.6vh,20px)}
   .row{padding:4px 0;gap:8px}
   .row b{font-size:15px}
   .row small{font-size:11px}
-  .pips{margin-top:2px}.pip{width:11px;height:5px}
+  .pips{margin-top:2px}.pip{width:8px;height:5px}
   .buy{font-size:14px;padding:5px 8px;min-width:78px}
   .sec{font-size:13px;margin:2px 0}
   .ad{margin-top:4px}.set{margin-top:6px}
@@ -159,6 +159,33 @@ body.ar .sctl{font-size:clamp(14px,2.6vh,20px)}
   .btn{font-size:14px;padding:3px 9px}
 }
 @media(orientation:landscape) and (min-height:561px){.panel{max-height:92vh;max-height:92dvh}}
+input,textarea{-webkit-user-select:text!important;user-select:text!important}
+#board{touch-action:pan-y}
+.row>.buy{white-space:nowrap;flex:none}
+.btabs{display:flex;gap:8px;margin-bottom:8px}
+.lbrow{align-items:center}
+.lbrow>div:first-child{display:flex;gap:8px;align-items:center;min-width:0}
+.lbrow b{font-size:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lbrow .rank{display:inline-block;min-width:40px;text-align:center;font-size:24px;flex:none;color:var(--hazard)}
+.lbrow.me{background:rgba(255,196,0,.14);outline:1px solid var(--hazard)}
+.lbrow .rv{color:var(--cash);flex:none}
+.lbrow.top1 b{color:var(--hazard)}
+.nameBox{display:flex;gap:8px;margin:6px 0 10px}
+.nameBox input{flex:1;min-width:0;font:inherit;font-size:18px;padding:8px 10px;background:#0f0d0c;color:var(--ink);border:2px solid var(--hazard);border-radius:3px;outline:0}
+.lbmsg{display:block;margin:8px 0;color:var(--steel);line-height:1.5;font-family:'Segoe UI',Tahoma,sans-serif;font-size:14px}
+body.ar .lbrow b{font-size:22px}
+.lbh,.lbr{display:grid;grid-template-columns:32px minmax(0,1fr) 38px 66px 24px;gap:4px;align-items:center;padding:7px 6px}
+.lbh{color:var(--steel);font-size:14px;font-family:'Segoe UI',Tahoma,sans-serif}
+.lbh span,.lbr span.c,.lbr span.m,.lbr span.p{text-align:center}
+.lbr{border:2px solid #3a342f;border-radius:10px;margin:6px 0;background:rgba(255,255,255,.03);font-family:'Segoe UI',Tahoma,sans-serif;font-size:15px;font-weight:700}
+.lbr .rank{font-size:20px;text-align:center;color:var(--hazard)}
+.lbr b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lbr .m{color:var(--cash)}
+.lbr.g1{border-color:var(--hazard);background:rgba(255,196,0,.14);box-shadow:0 0 14px rgba(255,196,0,.3)}
+.lbr.g2{border-color:#c9d1d9}.lbr.g3{border-color:var(--rust)}
+.lbr.me{outline:2px solid var(--volt)}
+.youbar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:var(--hazard);margin:4px 0 8px;font-family:'Segoe UI',Tahoma,sans-serif;font-weight:700}
+#boardBtn.pulse{animation:pulseBtn .9s ease-in-out infinite}
 </style>
 </head>
 <body translate="no" class="notranslate">
@@ -266,7 +293,7 @@ poki.init();
 /* ================= SAVE ================= */
 const KEY='magnetChaosSave_v1';
 let save={cash:0,xp:0,up:{magnet:0,rope:0,engine:0,crusher:0,csp:0,coin:0,sup:0,laser:0,frz:0},zup:{},zones:[true,false,false,false,false],zone:0,lang:'en',mute:false,prestige:0,totalEarned:0,bestCombo:0,firsts:{}};
-const UP0=()=>({magnet:0,rope:0,engine:0,crusher:0,csp:0,coin:0,sup:0,laser:0,frz:0,mag2:0,crush2:0,cash2:0});
+const UP0=()=>({magnet:0,rope:0,engine:0,crusher:0,csp:0,coin:0,sup:0,laser:0,frz:0,mag2:0,crush2:0,cash2:0,nit:0,cmb:0,lucky:0});
 function bindUp(){if(!save.zup)save.zup={};const z=save.zone|0;save.zup[z]=Object.assign(UP0(),save.zup[z]||{});save.up=save.zup[z];}
 function load(){try{const s=localStorage.getItem(KEY);if(s){const o=JSON.parse(s);save=Object.assign(save,o);if(!o.zup){save.zup={};save.zup[o.zone|0]=Object.assign(UP0(),o.up||{});}}}catch(e){}bindUp();}
 function store(){try{localStorage.setItem(KEY,JSON.stringify(save,function(k,v){return(k==='up'&&this===save)?undefined:v;}));}catch(e){}}
@@ -307,6 +334,28 @@ ar:{upgrades:'التطوير',nitro:'نيترو',magnetBtn:'مغناطيس',shop
  sp_armored:'شاحنة نقود مدرعة! اسحقها لتربح 2500$ - اضربها بقوة لكسر الدرع',sp_goldsafe:'خزنة ذهبية! اسحقها لتربح 1500$',sp_drone:'طائرة درون! أمسكها وحطمها: +3500$',
  ar_armored:'2500$',ar_goldsafe:'1500$',ar_drone:'3500$',airSmash:'تحطيم جوي!',armorHit:'درع',armorOff:'انكسر الدرع!',play:'العب',tagline:'إمبراطور الخردة',goal:'الهدف',m1:'امسك الخردة بالمغناطيس وارمِها في المكبس',m2:'اشترِ قوة المغناطيس من التطوير',m3:'حطّم سيارتين ورا بعض لتحصل على كومبو',m4:'اوصل للمستوى 3',m5:'افتح',m6:'طوّر كل شيء للحد الأقصى',csp:'سرعة التكسير',cspD:'يكسّر الخردة أسرع',coin:'مغناطيس العملات',coinD:'+10% فلوس لكل مستوى',sup:'المغناطيس الخارق',supD:'يسحب من بعيد جداً',laser:'مكسّر الليزر',laserD:'منطقة تكسير أوسع وأسرع',frz:'تجميد الزمن',frzD:'يجمّد الشرطة والدرون ثانيتين (زر F)',unlockAt:'يفتح عند المستوى',newUp:'تطوير جديد اتفتح!',prestige:'بريستيج',king:'ملك المغناطيس',moreCities:'مدينة أخرى',frzBtn:'تجميد [F]',sp_boss:'زعيم! اكسر الدرع واسحقه لتربح 20000$',ar_boss:'20000$',boardT:'الأرقام القياسية',rkTitle:'اللقب',rkLevel:'المستوى الكلي',rkCash:'الفلوس',rkTotal:'إجمالي الأرباح',rkCombo:'أعلى كومبو',rkCities:'المدن المفتوحة',rkNow:'المدينة الحالية',rkFirst:'أول مرة وصلت لكل مدينة',boardNote:'أرقامك الشخصية على هذا الجهاز.'}
 };
+Object.assign(L.en,{
+ nit:'Nitro Tank',nitD:'Nitro lasts longer and refills faster',
+ cmb:'Combo King',cmbD:'Longer combos and a bigger multiplier',
+ lucky:'Lucky Chest',luckyD:'Golden chest comes sooner and pays more',
+ lbTop:'Top 10',lbMine:'My Records',lbName:'Your name',lbSave:'Save',lbChange:'Change name',
+ lbJoin:'Join the Championship! Tap the trophy and enter your name',
+ lbLoad:'Loading...',lbErr:'Cannot reach the ranking. Showing the last saved list.',
+ lbOff:'Online ranking is not connected yet. Showing this device only.',
+ lbEmpty:'No players yet. Be the first!',lbTitle:'TOP 10 SCRAP KINGS',lbSub:'Global tournament · only the best stay on top',lbYou:'You',lbScore:'Score',lbCities:'Cities',lbPlayer:'Player',lbTaken:'This name is already taken, pick another one',lbEnter:'Enter unique name',lbNote:'Ranked by total cash earned. Only the best 10 players are shown.',
+ lbShort:'Name must be 2 to 14 characters',lbPick:'Pick a name to enter the championship'
+});
+Object.assign(L.ar,{
+ nit:'خزان النيترو',nitD:'النيترو يدوم أطول ويتعبّأ أسرع',
+ cmb:'ملك الكومبو',cmbD:'كومبو أطول ومضاعف أكبر',
+ lucky:'الصندوق المحظوظ',luckyD:'الصندوق الذهبي يأتي أسرع ويدفع أكثر',
+ lbTop:'أفضل 10',lbMine:'أرقامي',lbName:'اسمك',lbSave:'حفظ',lbChange:'تغيير الاسم',
+ lbJoin:'ادخل البطولة! اضغط على الكأس واكتب اسمك',
+ lbLoad:'جارٍ التحميل...',lbErr:'تعذّر الاتصال بالترتيب. المعروض آخر قائمة محفوظة.',
+ lbOff:'الترتيب العالمي غير متصل بعد. المعروض لهذا الجهاز فقط.',
+ lbEmpty:'لا يوجد لاعبون بعد. كن الأول!',lbTitle:'أفضل 10 ملوك الخردة',lbSub:'بطولة عالمية · الأفضل بس هو اللي يفضل فوق',lbYou:'أنت',lbScore:'النقاط',lbCities:'المدن',lbPlayer:'اللاعب',lbTaken:'الاسم ده مأخوذ، اختار اسم تاني',lbEnter:'اكتب اسم مميز',lbNote:'الترتيب حسب إجمالي الفلوس المكتسبة. يظهر أفضل 10 لاعبين فقط.',
+ lbShort:'الاسم من 2 إلى 14 حرفاً',lbPick:'اختر اسماً لتدخل البطولة'
+});
 const S=()=>L[save.lang]||L.en;
 const isTouch=(matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window);
 const PCAP=isTouch?200:320;
@@ -371,14 +420,25 @@ const ZONES=[
   if(!save.firsts)save.firsts={};if(!save.firsts[0])save.firsts[0]=Date.now();
   save.prestige=save.prestige||0;save.totalEarned=save.totalEarned||0;save.bestCombo=save.bestCombo||0;
 })();
-const UPS={magnet:{max:10,from:1000,to:10000},rope:{max:8,from:1500,to:15000},engine:{max:8,from:2000,to:20000},crusher:{max:3,from:2500,to:40000},
-  csp:{max:5,from:1000,to:12000,unlock:10},coin:{max:5,from:1200,to:25000,unlock:20},sup:{max:5,from:1500,to:30000,unlock:30},laser:{max:3,from:2000,to:40000,unlock:40},frz:{max:5,from:2000,to:35000,unlock:50},
-  mag2:{max:5,from:3000,to:40000,unlock:15},crush2:{max:5,from:2500,to:38000,unlock:25},cash2:{max:5,from:3500,to:40000,unlock:35}};
-const UPI={magnet:'🧲',rope:'⛓️',engine:'🚚',crusher:'🏭',csp:'⚙️',coin:'🪙',sup:'🌀',laser:'🔴',frz:'❄️',mag2:'💠',crush2:'⚡',cash2:'💰'};
+/* 20 levels per upgrade. 'oto' = the original last-level price (old levels keep their old price curve, +35% from level 4),
+   'to' = price of level 20 (zone 1 prices, multiplied by zoneMul in later cities). */
+const UPS={magnet:{max:20,from:1000,oto:10000,to:8e6},rope:{max:20,from:1500,oto:15000,to:6e6},engine:{max:20,from:2000,oto:20000,to:8e6},crusher:{max:20,from:2500,oto:40000,to:2e7},
+  csp:{max:20,from:1000,oto:12000,to:5e6,unlock:10},coin:{max:20,from:1200,oto:25000,to:1e7,unlock:20},sup:{max:20,from:1500,oto:30000,to:8e6,unlock:30},laser:{max:20,from:2000,oto:40000,to:1.2e7,unlock:40},frz:{max:20,from:2000,oto:35000,to:8e6,unlock:50},
+  mag2:{max:20,from:3000,oto:40000,to:1.2e7,unlock:15},crush2:{max:20,from:2500,oto:38000,to:1.2e7,unlock:25},cash2:{max:20,from:3500,oto:40000,to:1.5e7,unlock:35},
+  nit:{max:20,from:2000,oto:24000,to:5e6,unlock:5},cmb:{max:20,from:3000,oto:36000,to:8e6,unlock:12},lucky:{max:20,from:3000,oto:36000,to:6e6,unlock:18}};
+const OM={magnet:10,rope:8,engine:8,crusher:3,csp:5,coin:5,sup:5,laser:3,frz:5,mag2:5,crush2:5,cash2:5,nit:5,cmb:5,lucky:5}; /* levels of the original game: they keep their old strength, extra levels add smaller bonuses */
+const eff=k=>{const l=save.up[k],o=OM[k];return l<=o?l:o+(l-o)*0.3;};
+const ex=(k)=>Math.max(0,save.up[k]-OM[k]);
+const UPI={magnet:'🧲',rope:'⛓️',engine:'🚚',crusher:'🏭',csp:'⚙️',coin:'🪙',sup:'🌀',laser:'🔴',frz:'❄️',mag2:'💠',crush2:'⚡',cash2:'💰',nit:'🔋',cmb:'👑',lucky:'🎁'};
 const baseReward=()=>Math.round(1000*(1+0.4*save.zone)*(1+save.prestige*0.5)/100)*100;
 const rewardAmt=()=>{let best=Infinity;for(const k in UPS){const u=UPS[k];if(u.unlock&&totLvl()<u.unlock)continue;const c=upCost(k);if(c!=null&&c<best)best=c;}return best===Infinity?baseReward():Math.max(baseReward(),best);};
 const zoneMul=()=>1+0.4*save.zone;
-const upCost=k=>{const u=UPS[k],l=save.up[k];if(l>=u.max)return null;if(k==='magnet'&&l===0&&save.zone===0)return 30;const g=Math.pow(u.to/u.from,1/(u.max-1));return Math.round(u.from*Math.pow(g,l)*zoneMul()/10)*10;};
+const upCost=k=>{const u=UPS[k],l=save.up[k];if(l>=u.max)return null;if(k==='magnet'&&l===0&&save.zone===0)return 30;
+  const om=OM[k],kf=v=>v>=3?1.35:1,gA=Math.pow(u.oto/u.from,1/(om-1));let c;
+  if(l<om)c=u.from*Math.pow(gA,l)*kf(l);
+  else{const top=u.from*Math.pow(gA,om-1)*kf(om-1),gB=Math.pow(u.to/top,1/(u.max-1-(om-1)));c=top*Math.pow(gB,l-(om-1));}
+  c*=zoneMul();const m=Math.pow(10,Math.max(1,Math.floor(Math.log10(c))-2));return Math.round(c/m)*m;};
+const fmtS=n=>n>=1e12?(n/1e12).toFixed(2).replace(/\.?0+$/,'')+'T':n>=1e9?(n/1e9).toFixed(2).replace(/\.?0+$/,'')+'B':n>=1e6?(n/1e6).toFixed(2).replace(/\.?0+$/,'')+'M':fmt(n);
 const levelOf=xp=>Math.min(100,1+Math.floor(Math.sqrt(xp/40)));
 const lvl=()=>levelOf(save.xp);
 const PRES=[1,1.3,1.7,2.2,2.8,3.5,4.5,6,8,11,15];
@@ -395,7 +455,7 @@ let truck,mag,cam={x:0,y:0,z:1};
 let time=0,shake=0,heat=0,combo=0,lastSmash=-99,eventT=60,surgeT=0,boostT=0,trialT=0,showerLeft=0,showerT=0;
 let waveT=22,slowT=0,bombs=[],shells=[],nitroFx=false,magTrail=[];
 let nitro=1,magnetOn=false,shopOpen=false,playing=false,lastLvl=lvl(),spawnT=0,copT=0,crushing=false;
-let openStage=0;
+let openStage=0,firstIn=false,openGo=false,ot=0;
 /* ===== Golden Chest (every 3 min) + Daily Streak: retention features ===== */
 let chestT=120,chestSec=-1,chestLng='',dailyDone=false;
 function chestReward(){return Math.max(500,Math.round(rewardAmt()*1.5/100)*100);}
@@ -404,7 +464,7 @@ function chestTick(dt){
   if(el.style.display==='none')el.style.display='';
   chestT-=dt;
   if(chestT<=0){
-    chestT=180;const amt=chestReward();save.cash+=amt;save.totalEarned+=amt;
+    chestT=Math.max(100,180-4*save.up.lucky);const amt=Math.round(chestReward()*(1+0.06*save.up.lucky)/100)*100;save.cash+=amt;save.totalEarned+=amt;
     uiPush('lvl',(save.lang==='ar'?'صندوق ذهبي! +$':'GOLDEN CHEST! +$')+fmt(amt));
     sfx('cha');sfx('up');shake=Math.max(shake,6);spark(truck.x,truck.y,34,'#ffd23f',420);bills(truck.x,truck.y,26);store();
   }
@@ -434,17 +494,17 @@ let started=false,mouseDown=false,joyOX=0,joyOY=0,freezeT=0,freezeCD=0;
 const joy={x:0,y:0,active:false};
 let touchNitro=false;
 
-const mZ=()=>Math.min(14,save.up.magnet+save.up.mag2+(trialT>0?4:0));
+const mZ=()=>Math.min(24,eff('magnet')+eff('mag2')+(trialT>0?4:0));
 const maxTier=()=>Math.min(5,1+Math.floor(mZ()/2));
-const magRad=()=>(78+mZ()*13)*(1+0.15*save.up.sup)*(surgeT>0?2:1);
-const ropeLen=()=>120+save.up.rope*24;
-const cashMult=()=>(surgeT>0?2:1)*(boostT>0?2:1)*PRES[Math.min(10,save.prestige)]*(1+0.1*save.up.coin)*(1+0.15*save.up.cash2);
-const crushT=()=>0.6*(1-0.12*save.up.csp-0.08*save.up.laser)*(1-0.08*save.up.crush2);
-const crushMult=()=>[1,1.6,3,5][save.up.crusher];
+const magRad=()=>Math.min(640,(78+mZ()*13)*(1+0.15*Math.min(save.up.sup,5)+0.025*ex('sup')))*(surgeT>0?2:1);
+const ropeLen=()=>120+eff('rope')*24;
+const cashMult=()=>(surgeT>0?2:1)*(boostT>0?2:1)*PRES[Math.min(10,save.prestige)]*(1+0.1*eff('coin'))*(1+0.15*eff('cash2'))*(1+0.03*(ex('csp')+ex('crush2'))+0.02*ex('laser'));
+const crushT=()=>Math.max(0.04,0.6*Math.max(0.12,1-0.12*Math.min(save.up.csp,5)-0.08*Math.min(save.up.laser,3))*Math.max(0.4,1-0.08*Math.min(save.up.crush2,5))*Math.pow(0.97,ex('csp')+ex('laser')+ex('crush2')));
+const crushMult=()=>{const l=save.up.crusher;return l<=3?[1,1.6,3,5][l]:Math.round((5+(l-3)*0.55)*100)/100;};
 const earlyP=()=>save.xp<3000&&save.prestige===0;
 const econMul=()=>{if(!earlyP())return 0.55;if(time<40)return 1.6;if(time>=100)return 0.55;return 1.6-(time-40)/60*1.05;};
-const comboMul=()=>Math.min(6,1+(combo-1)*0.5);
-const inCrusher=o=>{const m=save.up.laser*20;return o.x>crusher.x-m&&o.x<crusher.x+crusher.w+m&&o.y>crusher.y-m&&o.y<crusher.y+crusher.h+m;};
+const comboMul=()=>Math.min(6+0.25*save.up.cmb,1+(combo-1)*(0.5+0.02*save.up.cmb));
+const inCrusher=o=>{const m=Math.min(120,eff('laser')*20);return o.x>crusher.x-m&&o.x<crusher.x+crusher.w+m&&o.y>crusher.y-m&&o.y<crusher.y+crusher.h+m;};
 
 /* ================= AUDIO ================= */
 let AC=null,master,humG,humO,sirG,sirO,nbuf,engO,engO2,engG,audioHold=false;
@@ -629,7 +689,7 @@ function addCash(amount,x,y,big){
 }
 
 /* ================= INPUT ================= */
-function hideHint(){if(hintT>0||$('hint').style.opacity!=='0'){hintT=0;$('hint').style.opacity=0;}}
+function hideHint(){if(started&&!shopOpen)firstIn=true;if(hintT>0||$('hint').style.opacity!=='0'){hintT=0;$('hint').style.opacity=0;}}
 function setPlaying(p){if(p===playing)return;playing=p;p?poki.start():poki.stop();}
 function setMagnet(v){
   if(v===magnetOn)return;magnetOn=v;
@@ -643,6 +703,7 @@ function releaseAll(){
 }
 const GAME_KEYS=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','KeyE','ShiftLeft','ShiftRight'];
 addEventListener('keydown',e=>{
+  if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'))return;
   initAudio();
   if(!started){if(e.code==='Enter'||e.code==='NumpadEnter'||e.code==='Space'){e.preventDefault();startGame();}return;}
   if(e.code==='KeyB'||e.code==='Escape'){e.preventDefault();shopOpen?closeShop():openShop();return;}
@@ -732,7 +793,7 @@ function blast(x,y,R){
 }
 function spawnBoss(){const p=randPos(420),o=mk('boss',p[0],p[1]);banner(S().sp_boss);sfx('boom',.6);spark(o.x,o.y,26,'#ff5a5a',300);shake=Math.max(shake,8);}
 function doPrestige(){save.prestige++;save.xp=0;lastLvl=1;uiPush('lvl',S().prestige+' '+save.prestige+'!  x'+PRES[save.prestige]);if(save.prestige>=10)banner(S().king);sfx('up');shake=Math.max(shake,8);spawnBoss();store();}
-function useFreeze(){if(save.up.frz<1||freezeCD>0||freezeT>0||!started||shopOpen)return;freezeT=2;freezeCD=Math.max(8,30-4*save.up.frz);sfx('up');}
+function useFreeze(){if(save.up.frz<1||freezeCD>0||freezeT>0||!started||shopOpen)return;freezeT=2+0.1*ex('frz');freezeCD=Math.max(6,30-4*Math.min(save.up.frz,5)-0.3*ex('frz'));sfx('up');}
 function spawnSpecial(){
   const names=['armored','goldsafe','drone'];let i;
   do{i=Math.floor(Math.random()*3);}while(i===lastSpecial);lastSpecial=i;
@@ -764,7 +825,7 @@ function collide(a,b){
 function isActive(o){return o.held||o.fling>0||(o.truck&&Math.hypot(o.vx,o.vy)>190);}
 function smash(a,b,imp,x,y){
   if(a.cd>0||b.cd>0)return;a.cd=b.cd=0.3;
-  combo=(time-lastSmash<(save.xp<400?4:3))?Math.min(12,combo+1):1;lastSmash=time;if(combo>stat.maxCombo)stat.maxCombo=combo;if(combo>save.bestCombo)save.bestCombo=combo;
+  combo=(time-lastSmash<(save.xp<400?4:3)+0.05*save.up.cmb)?Math.min(12,combo+1):1;lastSmash=time;if(combo>stat.maxCombo)stat.maxCombo=combo;if(combo>save.bestCombo)save.bestCombo=combo;
   let gain=Math.round(15*comboMul()*(1+save.zone*0.6)),cop=false,copBonus=0;
   const truckIn=a.truck||b.truck;
   for(const o of [a,b]){
@@ -810,8 +871,8 @@ function update(dt){
    const fx2=Math.cos(truck.a),fy2=Math.sin(truck.a);
    if(nitroFx){for(const sd of [-1,1])if(parts.length<PCAP)parts.push({k:4,x:truck.x-fx2*46-fy2*sd*9,y:truck.y-fy2*46+fx2*sd*9,vx:-fx2*rnd(160,260)+truck.vx*.5,vy:-fy2*rnd(160,260)+truck.vy*.5,t:0,life:rnd(.18,.34),s:rnd(5,9)});}
    if(spT>60&&Math.random()<dt*12)for(const sd of [-1,1])if(Math.random()<.5)smoke(truck.x-fy2*sd*17,truck.y+fx2*sd*17);}
-  nitro=clamp(nitro+(nOn?-0.45:0.18)*dt,0,1);
-  const e=save.up.engine,maxSp=(230+e*26)*(nOn?1.5:1)*(slowT>0?0.55:1),acc=(430+e*50)*(nOn?1.7:1);
+  nitro=clamp(nitro+(nOn?-0.45/(1+0.12*save.up.nit):0.18*(1+0.08*save.up.nit))*dt,0,1);
+  const e=eff('engine'),maxSp=(230+e*26)*(nOn?1.5:1)*(slowT>0?0.55:1),acc=(430+e*50)*(nOn?1.7:1);
   const nHeld=objs.reduce((a,o)=>a+(o.held?o.r/22:0),0);
   const heavy=1/(1+nHeld*0.07);
   const tvx0=truck.vx,tvy0=truck.vy;
@@ -1012,13 +1073,15 @@ function update(dt){
   heat=Math.max(0,heat-0.025*dt);
   if(Math.floor(heat)>stars&&stars<Math.floor(heat))banner(S().heatUp+' '+'\u2605'.repeat(Math.floor(heat)));
 
-  /* --- opening script: guaranteed action in the first ~10s of a fresh run --- */
-  if(save.zone===0&&save.prestige===0&&save.xp<400&&time<20){
+  /* --- opening script: paced beats, the clock starts on the player's first input (or after 7s idle) --- */
+  if(!openGo&&(firstIn||time>7))openGo=true;
+  if(openGo)ot+=dt;
+  if(openGo&&save.zone===0&&save.prestige===0&&save.xp<400&&ot<26){
     const near=(d)=>{for(let i=0;i<24;i++){const a=rnd(0,TAU),x=truck.x+Math.cos(a)*d,y=truck.y+Math.sin(a)*d;if(x>120&&y>120&&x<world.w-120&&y<world.h-120)return [x,y];}return [truck.x+d*0.5,truck.y];};
-    if(openStage<1&&time>0.3){openStage=1;surgeT=Math.max(surgeT,14);banner(S().surge);sfx('up');shake=Math.max(shake,4);}
-    if(openStage<2&&time>3.5){openStage=2;const q=near(340),o=mk('goldsafe',q[0],q[1]);banner(S().sp_goldsafe);sfx('cha');spark(o.x,o.y,18,'#ffd23f',260);}
-    if(openStage<3&&time>6.5){openStage=3;heat=Math.max(heat,1);const q=near(480),c=mk('cop',q[0],q[1]);c.a=Math.atan2(truck.y-q[1],truck.x-q[0]);sfx('warn');}
-    if(openStage<4&&time>9){openStage=4;showerLeft=10;showerT=0;banner(S().meteor);}
+    if(openStage<1){openStage=1;surgeT=Math.max(surgeT,16);banner(S().surge);sfx('up');shake=Math.max(shake,4);}                                  /* 0s: free power-up, easy convoy */
+    if(openStage<2&&ot>4){openStage=2;const q=near(300),o=mk('goldsafe',q[0],q[1]);banner(S().sp_goldsafe);sfx('cha');spark(o.x,o.y,18,'#ffd23f',260);}  /* 4s: golden vault */
+    if(openStage<3&&ot>10){openStage=3;heat=Math.max(heat,1);const q=near(520),c=mk('cop',q[0],q[1]);c.a=Math.atan2(truck.y-q[1],truck.x-q[0]);sfx('warn');}   /* 10s: first cop, after the player learned the loop */
+    if(openStage<4&&ot>16){openStage=4;showerLeft=10;showerT=0;banner(S().meteor);}                                                              /* 16s: meteors */
   }
   /* --- events every 90s --- */
   eventT-=dt;
@@ -1741,7 +1804,7 @@ function updateHud(){
   {const fb=$('frzBtn'),has=save.up.frz>0;if(fb.style.display!==(has?'block':'none'))fb.style.display=has?'block':'none';
    if(has){fb.textContent='❄ '+(freezeCD>0?Math.ceil(freezeCD)+'s':(isTouch?S().frzBtn.replace(/ \[F\]/,''):S().frzBtn));fb.disabled=freezeCD>0||freezeT>0;}
    $('frzFx').style.opacity=freezeT>0?1:0;}
-  updateMission();updateStickGhost();
+  updateMission();updateStickGhost();lbHintTick();
 }
 function syncMute(){$('muteBtn').innerHTML=save.mute?'&#128263;':'&#128266;';if(AC)master.gain.value=(save.mute||audioHold)?0:0.55;}
 $('muteBtn').addEventListener('click',()=>{initAudio();save.mute=!save.mute;syncMute();});
@@ -1783,7 +1846,7 @@ function renderShop(){
     const lv=save.up[k],u=UPS[k],cost=upCost(k),lk=u.unlock&&totLvl()<u.unlock;
     let pips='';for(let i=0;i<u.max;i++)pips+='<i class="pip'+(i<lv?' on':'')+'"></i>';
     h+='<div class="row"><div><span class="ico">'+(UPI[k]||'')+'</span><div><b>'+s[k]+(k==='crusher'?' x'+crushMult():'')+'</b><small>'+s[k+'D']+'</small><div class="pips">'+pips+'</div></div></div>'+
-       '<button class="buy" data-act="up" data-k="'+k+'" '+(lk||cost==null||save.cash<cost?'disabled':'')+'>'+(lk?s.unlockAt+' '+u.unlock:cost==null?s.max:'$'+fmt(cost))+'</button></div>';
+       '<button class="buy" data-act="up" data-k="'+k+'" '+(lk||cost==null||save.cash<cost?'disabled':'')+'>'+(lk?s.unlockAt+' '+u.unlock:cost==null?s.max:'$'+fmtS(cost))+'</button></div>';
   }
   $('upList').innerHTML=h;$('tabUp').textContent=s.upgrades;$('tabZn').textContent=s.zones;
   let zh='';
@@ -1800,18 +1863,112 @@ function renderShop(){
   $('zoneList').innerHTML=zh;
   $('extras').innerHTML='<div class="set"><button class="buy" data-act="lang">'+s.lang+'</button><button class="buy" data-act="snd">'+s.sound+': '+(save.mute?s.off:s.on)+'</button>'+((SHOW_REWARDED&&adsReady)?'<button class="buy alt" data-act="reward">&#127916; '+(save.lang==='ar'?'شاهد إعلان: +$':'Watch Ad: +$')+fmt(rewardAmt())+'</button>':'')+'</div>';
 }
-function renderBoard(){
-  const s=S(),ar=save.lang==='ar';
-  $('boardTitle').textContent='🏆 '+s.boardT;$('boardClose').textContent=s.resume;
+/* ================= CHAMPIONSHIP: global TOP 10 =================
+   Online ranking uses a free Firebase Realtime Database (plain REST, no SDK).
+   1) Create a Realtime Database, copy its URL, paste it below (example: 'https://my-game-default-rtdb.firebaseio.com').
+   2) Paste these rules in Realtime Database > Rules:
+      {"rules":{"scores":{".read":true,".indexOn":["s"],"$pid":{
+        ".write":"!data.exists() || newData.child('s').val() >= data.child('s').val()",
+        ".validate":"newData.hasChildren(['n','s']) && newData.child('n').isString() && newData.child('n').val().length>=2 && newData.child('n').val().length<=14 && newData.child('s').isNumber() && newData.child('s').val()>=0 && newData.child('s').val()<1e15"}},
+       "names":{"$n":{".write":"!data.exists() || data.val()===newData.val()",".validate":"newData.isString()"}}}}
+   Leave LB_URL empty and the board simply shows this device only. */
+const LB_URL='';
+const LB_ON=/^https:\/\//.test(LB_URL);
+const lb={list:null,all:null,state:'idle',sent:0,sentAt:0,edit:false,msg:''};
+try{const c=JSON.parse(localStorage.getItem('mcLB')||'null');if(Array.isArray(c))lb.list=c.slice(0,10);}catch(e){}
+if(!save.pname)save.pname='Player_'+(1000+Math.floor(Math.random()*9000));
+if(!save.pid){save.pid='p'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);}
+const lbEsc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const lbClean=v=>{try{return String(v||'').replace(/[^\p{L}\p{N} _.\-]/gu,'').replace(/\s+/g,' ').trim().slice(0,14);}catch(e){return String(v||'').replace(/[<>&"'`]/g,'').trim().slice(0,14);}};
+const lbBase=()=>LB_URL.replace(/\/+$/,'');
+function lbSubmit(force){
+  if(!LB_ON||!save.pname||!save.pid)return Promise.resolve();
+  const sc=Math.floor(save.totalEarned),now=Date.now();
+  if(sc<=0||(!force&&(sc<=lb.sent||now-lb.sentAt<60000)))return Promise.resolve();
+  lb.sentAt=now;
+  try{return fetch(lbBase()+'/scores/'+save.pid+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify({n:save.pname,s:sc,l:totLvl(),c:save.zones.filter(Boolean).length,p:save.prestige|0,t:now})}).then(r=>{if(r&&r.ok)lb.sent=sc;}).catch(()=>{});}catch(e){return Promise.resolve();}
+}
+function lbFetch(cb){
+  if(!LB_ON){lb.state='off';if(cb)cb();return;}
+  lb.state='load';let done=false;
+  const fin=st=>{if(done)return;done=true;clearTimeout(to);lb.state=st;if(cb)cb();};
+  const to=setTimeout(()=>fin('err'),8000);
+  try{fetch(lbBase()+'/scores.json?orderBy=%22s%22&limitToLast=100').then(r=>r.json()).then(o=>{
+    const a=[];if(o&&typeof o==='object')for(const id in o){const v=o[id];if(v&&typeof v==='object'&&typeof v.s==='number'&&typeof v.n==='string')a.push({id:id,n:lbClean(v.n)||'???',s:v.s,l:v.l|0,c:v.c|0,p:v.p|0});}
+    if(done)return;a.sort((x,y)=>y.s-x.s);lb.all=a;lb.list=a.slice(0,10);try{localStorage.setItem('mcLB',JSON.stringify(lb.list));}catch(e){}fin('ok');
+  }).catch(()=>fin('err'));}catch(e){fin('err');}
+}
+async function lbSaveName(){
+  const i=$('lbName');if(!i)return;const v=lbClean(i.value);
+  if(v.length<2){i.style.borderColor='#ff4b3e';i.focus();return;}
+  lb.msg='';
+  if(LB_ON){
+    const key=encodeURIComponent(v.toLowerCase().replace(/[^\p{L}\p{N}]+/gu,'_'));
+    try{const r=await fetch(lbBase()+'/names/'+key+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(save.pid)});
+      if(!r.ok){lb.msg=(r.status===401||r.status===403)?S().lbTaken:S().lbErr;renderBoard();return;}
+    }catch(e){lb.msg=S().lbErr;renderBoard();return;}
+  }
+  save.pname=v;save.pnamed=1;store();renderBoard();
+  lbSubmit(true).then(()=>lbFetch(()=>{if($('board').classList.contains('open'))renderBoard();}));
+}
+function lbHintTick(){
+  if(!LB_ON)return;const b=$('boardBtn');if(!b)return;
+  const need=!save.pnamed&&save.totalEarned>=2000&&!shopOpen;
+  b.classList.toggle('pulse',need);
+  if(need&&!save.lbHint){save.lbHint=1;banner(S().lbJoin);store();}
+}
+setInterval(()=>lbSubmit(false),30000);
+addEventListener('pagehide',()=>{lbSubmit(true);});
+let boardTab='top';
+const fmtM=n=>n>=1e12?(n/1e12).toFixed(2)+'T':n>=1e9?(n/1e9).toFixed(2)+'B':n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e4?(n/1e3).toFixed(1)+'K':fmt(n);
+function topHTML(s){
+  const sc=Math.floor(save.totalEarned),done=save.zones.filter(Boolean).length;
+  let all=LB_ON?(lb.all||lb.list||[]):[];
+  const better=all.filter(e=>e.id!==save.pid&&e.s>sc).length;
+  const inList=all.some(e=>e.id===save.pid);
+  const rk=(LB_ON&&!inList&&better>=100)?'100+':'#'+(better+1);
+  let list=all.filter(e=>e.id!==save.pid);
+  list.push({id:save.pid,n:save.pname,s:Math.max(sc,(all.find(e=>e.id===save.pid)||{s:0}).s),c:done,p:save.prestige|0});
+  list.sort((x,y)=>y.s-x.s);list=list.slice(0,10);
+  let h='<small class="lbmsg" style="margin-top:0">'+s.lbSub+'</small>';
+  h+='<div class="youbar"><span>'+s.lbYou+': '+lbEsc(save.pname)+'</span><span>'+s.lbScore+': '+fmtM(sc)+' · '+rk+'</span></div>';
+  h+='<div class="nameBox"><input id="lbName" maxlength="14" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="'+lbEsc(s.lbEnter)+'"><button class="buy alt" data-bact="name">'+s.lbSave+'</button></div>';
+  if(lb.msg)h+='<small class="lbmsg" style="color:#ff6b5e">'+lb.msg+'</small>';
+  h+='<div class="lbh"><span>#</span><span style="text-align:start">'+s.lbPlayer+'</span><span>'+s.lbCities+'</span><span>$</span><span>👑</span></div>';
+  list.forEach((e,i)=>{
+    h+='<div class="lbr'+(i<3?' g'+(i+1):'')+(e.id===save.pid?' me':'')+'"><span class="rank">'+(i===0?'👑':i===1?'🥈':i===2?'🥉':(i+1))+'</span><b>'+lbEsc(e.n)+'</b><span class="c">'+(e.c|0)+'</span><span class="m">'+fmtM(e.s)+'</span><span class="p">'+(e.p|0)+'</span></div>';
+  });
+  if(!LB_ON)h+='<small class="lbmsg">'+s.lbOff+'</small>';
+  else if(lb.state==='load'&&!all.length)h+='<small class="lbmsg">'+s.lbLoad+'</small>';
+  else if(lb.state==='err')h+='<small class="lbmsg">'+s.lbErr+'</small>';
+  return h+'<small class="bnote">'+s.lbNote+'</small>';
+}
+function mineHTML(s,ar){
   const done=save.zones.filter(Boolean).length;
   const rows=[[s.rkTitle,save.prestige>=10?s.king:s.prestige+' '+save.prestige],[s.rkLevel,totLvl()+' / 1000'],[s.rkCash,'$'+fmt(save.cash)],[s.rkTotal,'$'+fmt(save.totalEarned)],[s.rkCombo,'x'+save.bestCombo],[s.rkCities,done+'/'+ZONES.length],[s.rkNow,ZONES[save.zone].n[save.lang]]];
   let h=rows.map(r=>'<div class="row"><div><b>'+r[0]+'</b></div><div class="rv">'+r[1]+'</div></div>').join('');
   h+='<div class="sec">'+s.rkFirst+'</div>';
   h+=Object.keys(save.firsts).map(Number).sort((a,b)=>save.firsts[b]-save.firsts[a]).slice(0,8).map(i=>'<div class="row"><div><b>'+ZONES[i].n[save.lang]+'</b></div><div class="rv">'+new Date(save.firsts[i]).toLocaleDateString(ar?'ar':'en')+'</div></div>').join('');
-  h+='<small class="bnote">'+s.boardNote+'</small>';
-  $('boardBody').innerHTML=h;
+  return h+'<small class="bnote">'+s.boardNote+'</small>';
 }
-function openBoard(){if(shopOpen)return;shopOpen=true;for(const k in keys)keys[k]=false;joy.active=false;hideStick();setMagnet(false);setPlaying(false);refreshHold();document.body.classList.add('shopOpen');renderBoard();$('board').classList.add('open');}
+function renderBoard(){
+  const s=S(),ar=save.lang==='ar';$('board').dir=ar?'rtl':'ltr';
+  const inp=$('lbName'),val=inp?inp.value:null,foc=!!inp&&document.activeElement===inp;
+  $('boardTitle').textContent='🏆 '+(boardTab==='top'?s.lbTitle:s.boardT);$('boardClose').textContent=s.resume;
+  let h='<div class="btabs"><button class="tab'+(boardTab==='top'?' on':'')+'" data-bt="top">'+s.lbTop+'</button><button class="tab'+(boardTab==='me'?' on':'')+'" data-bt="me">'+s.lbMine+'</button></div>';
+  h+=boardTab==='top'?topHTML(s):mineHTML(s,ar);
+  $('boardBody').innerHTML=h;
+  if(val!==null){const n=$('lbName');if(n){n.value=val;if(foc){n.focus();try{n.setSelectionRange(val.length,val.length);}catch(e){}}}}
+}
+$('board').addEventListener('click',e=>{
+  const tb=e.target.closest('[data-bt]');if(tb){boardTab=tb.dataset.bt;renderBoard();return;}
+  const b=e.target.closest('[data-bact]');if(!b)return;
+  if(b.dataset.bact==='edit'){lb.edit=true;renderBoard();const i=$('lbName');if(i)i.focus();}
+  else if(b.dataset.bact==='name')lbSaveName();
+});
+$('board').addEventListener('keydown',e=>{if(e.target&&e.target.id==='lbName'&&e.key==='Enter'){e.preventDefault();lbSaveName();}});
+function openBoard(){if(shopOpen)return;shopOpen=true;for(const k in keys)keys[k]=false;joy.active=false;hideStick();setMagnet(false);setPlaying(false);refreshHold();document.body.classList.add('shopOpen');boardTab='top';lb.edit=false;lb.msg='';if(LB_ON)lb.state='load';renderBoard();$('board').classList.add('open');
+  lbSubmit(true).then(()=>lbFetch(()=>{if($('board').classList.contains('open'))renderBoard();}));}
 $('boardBtn').addEventListener('click',e=>{e.stopPropagation();e.currentTarget.blur();if(started)openBoard();});
 $('boardClose').addEventListener('click',closeShop);
 $('frzBtn').addEventListener('pointerdown',e=>{e.stopPropagation();useFreeze();});
