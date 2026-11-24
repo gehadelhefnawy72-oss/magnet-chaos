@@ -1938,7 +1938,7 @@ function topHTML(s){
   list.forEach((e,i)=>{
     h+='<div class="lbr'+(i<3?' g'+(i+1):'')+(e.id===save.pid?' me':'')+'"><span class="rank">'+(i===0?'👑':i===1?'🥈':i===2?'🥉':(i+1))+'</span><b>'+lbEsc(e.n)+'</b><span class="c">'+(e.c|0)+'</span><span class="m">'+fmtM(e.s)+'</span><span class="p">'+(e.p|0)+'</span></div>';
   });
-  if(!LB_ON)h+='<small class="lbmsg">'+s.lbOff+'</small>';
+  if(!LB_ON){}
   else if(lb.state==='load'&&!all.length)h+='<small class="lbmsg">'+s.lbLoad+'</small>';
   else if(lb.state==='err')h+='<small class="lbmsg">'+s.lbErr+'</small>';
   return h+'<small class="bnote">'+s.lbNote+'</small>';
@@ -1954,9 +1954,9 @@ function mineHTML(s,ar){
 function renderBoard(){
   const s=S(),ar=save.lang==='ar';$('board').dir=ar?'rtl':'ltr';
   const inp=$('lbName'),val=inp?inp.value:null,foc=!!inp&&document.activeElement===inp;
-  $('boardTitle').textContent='🏆 '+(boardTab==='top'?s.lbTitle:s.boardT);$('boardClose').textContent=s.resume;
-  let h='<div class="btabs"><button class="tab'+(boardTab==='top'?' on':'')+'" data-bt="top">'+s.lbTop+'</button><button class="tab'+(boardTab==='me'?' on':'')+'" data-bt="me">'+s.lbMine+'</button></div>';
-  h+=boardTab==='top'?topHTML(s):mineHTML(s,ar);
+  $('boardTitle').textContent='🏆 '+((LB_ON&&boardTab==='top')?s.lbTitle:s.boardT);$('boardClose').textContent=s.resume;
+  let h=LB_ON?'<div class="btabs"><button class="tab'+(boardTab==='top'?' on':'')+'" data-bt="top">'+s.lbTop+'</button><button class="tab'+(boardTab==='me'?' on':'')+'" data-bt="me">'+s.lbMine+'</button></div>':'';
+  h+=(LB_ON&&boardTab==='top')?topHTML(s):mineHTML(s,ar);
   $('boardBody').innerHTML=h;
   if(val!==null){const n=$('lbName');if(n){n.value=val;if(foc){n.focus();try{n.setSelectionRange(val.length,val.length);}catch(e){}}}}
 }
@@ -1967,7 +1967,7 @@ $('board').addEventListener('click',e=>{
   else if(b.dataset.bact==='name')lbSaveName();
 });
 $('board').addEventListener('keydown',e=>{if(e.target&&e.target.id==='lbName'&&e.key==='Enter'){e.preventDefault();lbSaveName();}});
-function openBoard(){if(shopOpen)return;shopOpen=true;for(const k in keys)keys[k]=false;joy.active=false;hideStick();setMagnet(false);setPlaying(false);refreshHold();document.body.classList.add('shopOpen');boardTab='top';lb.edit=false;lb.msg='';if(LB_ON)lb.state='load';renderBoard();$('board').classList.add('open');
+function openBoard(){if(shopOpen)return;shopOpen=true;for(const k in keys)keys[k]=false;joy.active=false;hideStick();setMagnet(false);setPlaying(false);refreshHold();document.body.classList.add('shopOpen');boardTab=LB_ON?'top':'me';lb.edit=false;lb.msg='';if(LB_ON)lb.state='load';renderBoard();$('board').classList.add('open');
   lbSubmit(true).then(()=>lbFetch(()=>{if($('board').classList.contains('open'))renderBoard();}));}
 $('boardBtn').addEventListener('click',e=>{e.stopPropagation();e.currentTarget.blur();if(started)openBoard();});
 $('boardClose').addEventListener('click',closeShop);
