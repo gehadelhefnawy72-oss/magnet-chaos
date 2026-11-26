@@ -259,6 +259,7 @@ const fmt=n=>Math.round(n).toLocaleString('en-US');
 
 /* ================= POKI SDK (safe wrappers, no-ops when SDK is absent) ================= */
 let adActive=false,focusLost=false,sdkOk=false,uiOk=false,loadedSent=false,adsReady=false;
+const SHOW_COMMERCIAL=false; /* false = no interstitial ads (commercialBreak) */
 const SHOW_REWARDED=false; /* master switch: set false to keep the Watch Ad button hidden (e.g. during first Poki review) */
 function resumeAfterAd(){try{if(started&&!shopOpen&&!document.hidden)setPlaying(true);}catch(e){}}
 const poki={
@@ -279,6 +280,7 @@ const poki={
     done(true);
   },
   commercial(cb){
+    if(!SHOW_COMMERCIAL){cb();return;}
     if(adActive)return;
     adActive=true;setPlaying(false);refreshHold();
     let fin=false;
