@@ -365,9 +365,9 @@ const fmt=n=>Math.round(n).toLocaleString('en-US');
    Integrators can define window.MCHooks={showInterstitial(cb),showRewarded(cb(ok)),onGameplayStart(),onGameplayStop()}
    and call MCAnalytics.register(fn) to forward events to GameAnalytics / Facebook SDK (native plugin). */
 let adActive=false,focusLost=false;
-const SHOW_COMMERCIAL=false,SHOW_REWARDED=true; /* rewarded buttons only appear when an ad system (PokiSDK / MCHooks) exists */
+const SHOW_COMMERCIAL=false,SHOW_REWARDED=false; /* rewarded buttons only appear when an ad system (PokiSDK / MCHooks) exists */
 const hasPoki=()=>!!(window.PokiSDK&&typeof window.PokiSDK.rewardedBreak==='function');
-const hasRewarded=()=>!!(window.MCHooks&&typeof window.MCHooks.showRewarded==='function')||hasPoki();
+const hasRewarded=()=>false; /* TEST PHASE: all rewarded-ad buttons hidden. Restore: !!(window.MCHooks&&typeof window.MCHooks.showRewarded==='function')||hasPoki() */
 /* Poki SDK safe wrapper: every call is try/catch so local / non-Poki hosting never errors */
 const poki={call(n){try{if(window.PokiSDK&&typeof PokiSDK[n]==='function')return PokiSDK[n]();}catch(e){}},
   init(){let d=false;const fin=()=>{if(d)return;d=true;poki.call('gameLoadingFinished');};try{if(window.PokiSDK&&PokiSDK.init){PokiSDK.init().then(fin).catch(fin);setTimeout(fin,4000);}}catch(e){}}};
